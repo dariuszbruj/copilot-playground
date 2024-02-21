@@ -7,13 +7,9 @@
 
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
+    <RootNamespace>Apartment.Api.UnitTests</RootNamespace>
   </PropertyGroup>
-
-  <PropertyGroup>
-    <UseArtifactsOutput>true</UseArtifactsOutput>
-  </PropertyGroup>
-
-
+    
   <ItemGroup>
     <PackageReference Include="FakeItEasy" Version="8.1.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
@@ -30,7 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Apartments.Api\Apartments.Api.csproj" />
+    <ProjectReference Include="..\..\src\Apartments.WebApi\Apartments.WebApi.csproj" />
   </ItemGroup>
 
 </Project>

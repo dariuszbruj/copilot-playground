@@ -1,9 +1,11 @@
+using Apartments.Infrastructure.Identity.Models;
+using Apartments.WebApi.Controllers;
+using FakeItEasy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using FakeItEasy;
 using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
 
-namespace apartment.api.tests.Controllers;
+namespace Apartment.Api.UnitTests.Controllers;
 
 public class UserControllerTests
 {
@@ -11,15 +13,15 @@ public class UserControllerTests
     public async Task Register_ShouldCreateUserAndReturnOkResult()
     {
         // Arrange
-        var userManagerFake = A.Fake<UserManager<IdentityUser>>();
-        var signInManagerFake = A.Fake<SignInManager<IdentityUser>>();
+        var userManagerFake = A.Fake<UserManager<User>>();
+        var signInManagerFake = A.Fake<SignInManager<User>>();
         var controller = new UserController(userManagerFake, signInManagerFake);
 
         const string username = "testuser";
         const string password = "testpassword";
         var user = new IdentityUser { UserName = username };
 
-        A.CallTo(() => userManagerFake.CreateAsync(A<IdentityUser>._, A<string>._))
+        A.CallTo(() => userManagerFake.CreateAsync(A<User>._, A<string>._))
             .Returns(IdentityResult.Success);
 
         // Act
@@ -28,7 +30,7 @@ public class UserControllerTests
         // Assert
         Assert.IsType<OkResult>(response);
         A.CallTo(() => userManagerFake.CreateAsync(
-            A<IdentityUser>.That.Matches(u => u.UserName == user.UserName && u.Email == user.Email),
+            A<User>.That.Matches(u => u.UserName == user.UserName && u.Email == user.Email),
             A<string>.That.Matches(p => p == password)))
             .MustHaveHappenedOnceExactly();
     }
@@ -37,8 +39,8 @@ public class UserControllerTests
     public async Task Register_ShouldReturnBadRequestWhenUserCreationFails()
     {
         // Arrange
-        var userManagerFake = A.Fake<UserManager<IdentityUser>>();
-        var signInManagerFake = A.Fake<SignInManager<IdentityUser>>();
+        var userManagerFake = A.Fake<UserManager<User>>();
+        var signInManagerFake = A.Fake<SignInManager<User>>();
         var controller = new UserController(userManagerFake, signInManagerFake);
 
         const string username = "testuser";
@@ -48,7 +50,7 @@ public class UserControllerTests
         var errors = new List<IdentityError> { new() { Description = "Error description" } };
         var result = IdentityResult.Failed([.. errors]);
 
-        A.CallTo(() => userManagerFake.CreateAsync(A<IdentityUser>._, A<string>._))
+        A.CallTo(() => userManagerFake.CreateAsync(A<User>._, A<string>._))
             .Returns(result);
 
         // Act
@@ -58,7 +60,7 @@ public class UserControllerTests
         var badRequestResult = Assert.IsType<BadRequestObjectResult>(response);
         Assert.Equal(result.Errors, badRequestResult.Value);
         A.CallTo(() => userManagerFake.CreateAsync(
-            A<IdentityUser>.That.Matches(u => u.UserName == user.UserName && u.Email == user.Email),
+            A<User>.That.Matches(u => u.UserName == user.UserName && u.Email == user.Email),
             A<string>.That.Matches(p => p == password)))
             .MustHaveHappenedOnceExactly();
     }
@@ -67,13 +69,13 @@ public class UserControllerTests
     public async Task Login_ShouldReturnOkResult_WhenCredentialsAreValid()
     {
         // Arrange
-        var userManagerFake = A.Fake<UserManager<IdentityUser>>();
-        var signInManagerFake = A.Fake<SignInManager<IdentityUser>>();
+        var userManagerFake = A.Fake<UserManager<User>>();
+        var signInManagerFake = A.Fake<SignInManager<User>>();
         var controller = new UserController(userManagerFake, signInManagerFake);
 
         const string username = "testuser";
         const string password = "testpassword";
-        var user = new IdentityUser { UserName = username };
+        var user = new User { UserName = username };
 
         A.CallTo(() => userManagerFake.FindByNameAsync(username))
             .Returns(user);
@@ -91,15 +93,15 @@ public class UserControllerTests
     public async Task Login_ShouldReturnUnauthorized_WhenUserNotFound()
     {
         // Arrange
-        var userManagerFake = A.Fake<UserManager<IdentityUser>>();
-        var signInManagerFake = A.Fake<SignInManager<IdentityUser>>();
+        var userManagerFake = A.Fake<UserManager<User>>();
+        var signInManagerFake = A.Fake<SignInManager<User>>();
         var controller = new UserController(userManagerFake, signInManagerFake);
 
         const string username = "testuser";
         const string password = "testpassword";
 
         A.CallTo(() => userManagerFake.FindByNameAsync(username))
-            .Returns((IdentityUser?)null);
+            .Returns((User?)null);
 
         // Act
         var response = await controller.Login(username, password);
@@ -112,13 +114,13 @@ public class UserControllerTests
     public async Task Login_ShouldReturnUnauthorized_WhenCredentialsAreInvalid()
     {
         // Arrange
-        var userManagerFake = A.Fake<UserManager<IdentityUser>>();
-        var signInManagerFake = A.Fake<SignInManager<IdentityUser>>();
+        var userManagerFake = A.Fake<UserManager<User>>();
+        var signInManagerFake = A.Fake<SignInManager<User>>();
         var controller = new UserController(userManagerFake, signInManagerFake);
 
         const string username = "testuser";
         const string password = "testpassword";
-        var user = new IdentityUser { UserName = username };
+        var user = new User { UserName = username };
 
         A.CallTo(() => userManagerFake.FindByNameAsync(username))
             .Returns(user);
