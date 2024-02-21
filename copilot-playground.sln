@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.002.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "apartments.api", "apartments.api\apartments.api.csproj", "{BF3E6B74-85A8-4D6F-912E-E9CBA8B3BF30}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Apartments.Api", "Apartments.Api\Apartments.Api.csproj", "{BF3E6B74-85A8-4D6F-912E-E9CBA8B3BF30}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "apartment.api.tests", "apartment.api.tests\apartment.api.tests.csproj", "{27C4B991-B209-438C-AFF9-F3630723B961}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Apartment.Api.UnitTests", "Apartments.Api.UnitTests\Apartments.Api.UnitTests.csproj", "{27C4B991-B209-438C-AFF9-F3630723B961}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

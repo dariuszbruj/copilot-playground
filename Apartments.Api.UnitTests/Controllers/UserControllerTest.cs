@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using FakeItEasy;
 using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
 
-namespace apartment.api.tests.Controllers;
+namespace Apartments.Api.UnitTests.Controllers;
 
 public class UserControllerTests
 {
