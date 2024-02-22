@@ -1,6 +1,6 @@
-﻿namespace Apartments.WebApi;
+﻿namespace Apartments.WebApi.Response;
 
 public class LoginResponse
 {
-    public string Token {get; set; } = string.Empty;
+    public string Token {get; init; } = string.Empty;
 }

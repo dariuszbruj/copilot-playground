@@ -1,13 +1,14 @@
 using Apartments.Domain.Services;
 using Apartments.Infrastructure.Identity.Models;
 using Apartments.WebApi.Requests;
+using Apartments.WebApi.Response;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Apartments.WebApi.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("user")]
 public class UserController(UserManager<User> userManager, SignInManager<User> signInManager, ITokenGenerator tokenGenerator)
     : ControllerBase
 {
@@ -30,7 +31,7 @@ public class UserController(UserManager<User> userManager, SignInManager<User> s
 
         var token = tokenGenerator.GenerateToken(user.UserName);
             
-        return Ok(new LoginResponse() { Token = token });
+        return Ok(new LoginResponse { Token = token });
 
     }
 
