@@ -3,6 +3,7 @@ using Apartments.Infrastructure.Identity.Models;
 using Apartments.WebApi;
 using Apartments.WebApi.Controllers;
 using Apartments.WebApi.Requests;
+using Apartments.WebApi.Response;
 using FakeItEasy;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
