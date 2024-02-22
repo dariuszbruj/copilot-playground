@@ -1,4 +1,5 @@
 using Apartments.Infrastructure.Identity.Models;
+using Apartments.WebApi.Requests;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,30 +11,28 @@ public class UserController(UserManager<User> userManager, SignInManager<User> s
     : ControllerBase
 {
     [HttpPost("login")]
-    public async Task<IActionResult> Login(string username, string password)
+    public async Task<IActionResult> Login(LoginRequest request)
     {
-        var user = await userManager.FindByNameAsync(username);
+        var user = await userManager.FindByNameAsync(request.Username);
 
         if (user == null)
         {
             return Unauthorized();
         }
 
-        var result = await signInManager.PasswordSignInAsync(user, password, false, false);
-        if (result.Succeeded)
-        {
-            return Ok();
-        }
-        
-        return Unauthorized();
+        var result = await signInManager.PasswordSignInAsync(request.Username, request.Password, false, false);
+
+        return result.Succeeded 
+            ? Ok() : Unauthorized();
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register(string username, string password)
+    public async Task<IActionResult> Register(RegisterRequest request)
     {
-        var user = new User { UserName = username, Email = username};
-        var result = await userManager.CreateAsync(user, password);
+        var user = new User { UserName = request.Username, Email = request.Username};
+        var result = await userManager.CreateAsync(user, request.Password);
 
-        return result.Succeeded ? Ok() : BadRequest(result.Errors);
+        return result.Succeeded 
+            ? Ok() : BadRequest(result.Errors);
     }
 }

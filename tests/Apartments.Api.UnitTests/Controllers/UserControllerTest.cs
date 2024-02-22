@@ -1,5 +1,7 @@
 using Apartments.Infrastructure.Identity.Models;
+using Apartments.WebApi;
 using Apartments.WebApi.Controllers;
+using Apartments.WebApi.Requests;
 using FakeItEasy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -20,12 +22,13 @@ public class UserControllerTests
         const string username = "testuser";
         const string password = "testpassword";
         var user = new IdentityUser { UserName = username };
+        var request = new RegisterRequest { Username = username, Password = password };
 
         A.CallTo(() => userManagerFake.CreateAsync(A<User>._, A<string>._))
             .Returns(IdentityResult.Success);
 
         // Act
-        var response = await controller.Register(username, password);
+        var response = await controller.Register(request);
 
         // Assert
         Assert.IsType<OkResult>(response);
@@ -46,6 +49,7 @@ public class UserControllerTests
         const string username = "testuser";
         const string password = "testpassword";
         var user = new IdentityUser { UserName = username };
+        var request = new RegisterRequest { Username = username, Password = password };
 
         var errors = new List<IdentityError> { new() { Description = "Error description" } };
         var result = IdentityResult.Failed([.. errors]);
@@ -54,7 +58,7 @@ public class UserControllerTests
             .Returns(result);
 
         // Act
-        var response = await controller.Register(username, password);
+        var response = await controller.Register(request);
 
         // Assert
         var badRequestResult = Assert.IsType<BadRequestObjectResult>(response);
@@ -76,6 +80,7 @@ public class UserControllerTests
         const string username = "testuser";
         const string password = "testpassword";
         var user = new User { UserName = username };
+        var request = new LoginRequest { Username = username, Password = password };
 
         A.CallTo(() => userManagerFake.FindByNameAsync(username))
             .Returns(user);
@@ -83,7 +88,7 @@ public class UserControllerTests
             .Returns(SignInResult.Success);
 
         // Act
-        var response = await controller.Login(username, password);
+        var response = await controller.Login(request);
 
         // Assert
         Assert.IsType<OkResult>(response);
@@ -99,12 +104,13 @@ public class UserControllerTests
 
         const string username = "testuser";
         const string password = "testpassword";
+        var request = new LoginRequest { Username = username, Password = password };
 
         A.CallTo(() => userManagerFake.FindByNameAsync(username))
             .Returns((User?)null);
 
         // Act
-        var response = await controller.Login(username, password);
+        var response = await controller.Login(request);
 
         // Assert
         Assert.IsType<UnauthorizedResult>(response);
@@ -121,6 +127,7 @@ public class UserControllerTests
         const string username = "testuser";
         const string password = "testpassword";
         var user = new User { UserName = username };
+        var request = new LoginRequest { Username = username, Password = password };
 
         A.CallTo(() => userManagerFake.FindByNameAsync(username))
             .Returns(user);
@@ -128,9 +135,10 @@ public class UserControllerTests
             .Returns(SignInResult.Failed);
 
         // Act
-        var response = await controller.Login(username, password);
+        var response = await controller.Login(request);
 
         // Assert
         Assert.IsType<UnauthorizedResult>(response);
     }
+    
 }
