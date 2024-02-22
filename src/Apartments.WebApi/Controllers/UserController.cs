@@ -1,3 +1,4 @@
+using Apartments.Domain.Services;
 using Apartments.Infrastructure.Identity.Models;
 using Apartments.WebApi.Requests;
 using Microsoft.AspNetCore.Identity;
@@ -7,29 +8,36 @@ namespace Apartments.WebApi.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class UserController(UserManager<User> userManager, SignInManager<User> signInManager)
+public class UserController(UserManager<User> userManager, SignInManager<User> signInManager, ITokenGenerator tokenGenerator)
     : ControllerBase
 {
     [HttpPost("login")]
-    public async Task<IActionResult> Login(LoginRequest request)
+    public async Task<ActionResult<LoginResponse>> Login(LoginRequest request)
     {
-        var user = await userManager.FindByNameAsync(request.Username);
+        var user = await userManager.FindByNameAsync(request.UserName);
 
         if (user == null)
         {
             return Unauthorized();
         }
 
-        var result = await signInManager.PasswordSignInAsync(request.Username, request.Password, false, false);
+        var result = await signInManager.CheckPasswordSignInAsync(user, request.Password, false);
 
-        return result.Succeeded 
-            ? Ok() : Unauthorized();
+        if (!result.Succeeded || user.UserName == null)
+        {
+            return Unauthorized();
+        }
+
+        var token = tokenGenerator.GenerateToken(user.UserName);
+            
+        return Ok(new LoginResponse() { Token = token });
+
     }
 
     [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterRequest request)
     {
-        var user = new User { UserName = request.Username, Email = request.Username};
+        var user = new User { UserName = request.UserName, Email = request.UserName};
         var result = await userManager.CreateAsync(user, request.Password);
 
         return result.Succeeded 

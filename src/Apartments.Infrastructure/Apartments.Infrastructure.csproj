@@ -25,4 +25,8 @@
     <Reference Include="Microsoft.AspNetCore.Identity" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Apartments.Domain\Apartments.Domain.csproj" />
+  </ItemGroup>
+
 </Project>
