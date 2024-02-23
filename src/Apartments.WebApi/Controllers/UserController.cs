@@ -1,36 +1,34 @@
 using Apartments.Domain.Services;
-using Apartments.Infrastructure.Identity.Models;
+using Apartments.Domain.Services.AccountService;
 using Apartments.WebApi.Requests;
 using Apartments.WebApi.Response;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Apartments.WebApi.Controllers;
 
 [ApiController]
 [Route("user")]
-public class UserController(UserManager<User> userManager, SignInManager<User> signInManager, ITokenGenerator tokenGenerator)
+public class UserController(IAccountService accountService, ITokenGenerator tokenGenerator)
     : ControllerBase
 {
     [HttpPost("login")]
     public async Task<ActionResult<LoginResponse>> Login(LoginRequest request)
     {
-        var user = await userManager.FindByNameAsync(request.UserName);
+        var loginRequest = new LoginRequestDto(
+            new UserName(request.UserName),
+            new Password(request.Password),
+            new LockoutOnFailure(true));
 
-        if (user == null)
+        var result = await accountService.LoginAsync(loginRequest);
+
+        if (result is not LoginSuccessResult)
         {
             return Unauthorized();
         }
 
-        var result = await signInManager.CheckPasswordSignInAsync(user, request.Password, false);
+        // TODO: username should be fetched from result
+        var token = tokenGenerator.GenerateToken(request.UserName);
 
-        if (!result.Succeeded || user.UserName == null)
-        {
-            return Unauthorized();
-        }
-
-        var token = tokenGenerator.GenerateToken(user.UserName);
-            
         return Ok(new LoginResponse { Token = token });
 
     }
@@ -38,10 +36,18 @@ public class UserController(UserManager<User> userManager, SignInManager<User> s
     [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterRequest request)
     {
-        var user = new User { UserName = request.UserName, Email = request.UserName};
-        var result = await userManager.CreateAsync(user, request.Password);
+        var createRequest = new CreateRequestDto(
+            new UserName(request.UserName),
+            new Password(request.Password));
 
-        return result.Succeeded 
-            ? Ok() : BadRequest(result.Errors);
+        var result = await accountService.CreateAsync(createRequest);
+
+        // switch return on type
+        return result switch
+        {
+            CreateSuccessResult => Ok(),
+            CreateErrorResult badRequest => BadRequest(badRequest.ErrorMessage),
+            _ => BadRequest()
+        };
     }
 }

@@ -1,4 +1,5 @@
 using Apartments.Domain.Services;
+using Apartments.Domain.Services.AccountService;
 using Apartments.Infrastructure.EntityFramework.Contexts;
 using Apartments.Infrastructure.Identity.Models;
 using Apartments.Infrastructure.Identity.Services;
@@ -29,6 +30,8 @@ public static class IdentityServiceExtension
         services.Configure<JwtTokenGeneratorOptions>(configuration.GetSection("JwtTokenGeneratorOptions"));
         services.AddTransient<ITokenGenerator, JwtTokenGenerator>();
 
+        services.AddTransient<IAccountService, AccountService>();
+        
         return services;
     }
 }
