@@ -1,14 +1,12 @@
 using Apartments.Domain.Services;
+using Apartments.Domain.Services.AccountService;
 using Apartments.Infrastructure.Identity.Models;
-using Apartments.WebApi;
 using Apartments.WebApi.Controllers;
 using Apartments.WebApi.Requests;
 using Apartments.WebApi.Response;
 using FakeItEasy;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
 
 namespace Apartment.Api.UnitTests.Controllers;
 
@@ -18,27 +16,25 @@ public class UserControllerTests
     public async Task Register_ShouldCreateUserAndReturnOkResult()
     {
         // Arrange
-        var userManagerFake = A.Fake<UserManager<User>>();
-        var signInManagerFake = A.Fake<SignInManager<User>>();
+        var accountServiceFake = A.Fake<IAccountService>();
         var tokenGeneratorFake = A.Fake<ITokenGenerator>();
-        var controller = new UserController(userManagerFake, signInManagerFake, tokenGeneratorFake);
+        var controller = new UserController(accountServiceFake, tokenGeneratorFake);
 
         const string username = "testuser";
         const string password = "testpassword";
         var user = new IdentityUser { UserName = username };
         var request = new RegisterRequest { UserName = username, Password = password };
 
-        A.CallTo(() => userManagerFake.CreateAsync(A<User>._, A<string>._))
-            .Returns(IdentityResult.Success);
+        A.CallTo(() => accountServiceFake.CreateAsync(A<CreateRequestDto>._))
+            .Returns(new CreateSuccessResult());
 
         // Act
         var response = await controller.Register(request);
 
         // Assert
         Assert.IsType<OkResult>(response);
-        A.CallTo(() => userManagerFake.CreateAsync(
-            A<User>.That.Matches(u => u.UserName == user.UserName),
-            A<string>.That.Matches(p => p == password)))
+        A.CallTo(() => accountServiceFake.CreateAsync(
+            A<CreateRequestDto>.That.Matches(u => u.UserName == user.UserName && u.Password == password)))
             .MustHaveHappenedOnceExactly();
     }
 
@@ -46,20 +42,19 @@ public class UserControllerTests
     public async Task Register_ShouldReturnBadRequestWhenUserCreationFails()
     {
         // Arrange
-        var userManagerFake = A.Fake<UserManager<User>>();
-        var signInManagerFake = A.Fake<SignInManager<User>>();
+        var accountServiceFake = A.Fake<IAccountService>();
         var tokenGeneratorFake = A.Fake<ITokenGenerator>();
-        var controller = new UserController(userManagerFake, signInManagerFake, tokenGeneratorFake);
+        var controller = new UserController(accountServiceFake, tokenGeneratorFake);
 
         const string username = "testuser";
         const string password = "testpassword";
         var user = new IdentityUser { UserName = username };
         var request = new RegisterRequest { UserName = username, Password = password };
 
-        var errors = new List<IdentityError> { new() { Description = "Error description" } };
-        var result = IdentityResult.Failed([.. errors]);
+        var errors = new string[] { "Error description" };
+        var result = new CreateErrorResult() { ErrorMessage = errors };
 
-        A.CallTo(() => userManagerFake.CreateAsync(A<User>._, A<string>._))
+        A.CallTo(() => accountServiceFake.CreateAsync(A<CreateRequestDto>._))
             .Returns(result);
 
         // Act
@@ -67,31 +62,24 @@ public class UserControllerTests
 
         // Assert
         var badRequestResult = Assert.IsType<BadRequestObjectResult>(response);
-        Assert.Equal(result.Errors, badRequestResult.Value);
-        A.CallTo(() => userManagerFake.CreateAsync(
-            A<User>.That.Matches(u => u.UserName == user.UserName),
-            A<string>.That.Matches(p => p == password)))
-            .MustHaveHappenedOnceExactly();
+        Assert.Equal(result.ErrorMessage, badRequestResult.Value);
     }
 
     [Fact]
     public async Task Login_ShouldReturnOkObjectResult_WhenCredentialsAreValid()
     {
         // Arrange
-        var userManagerFake = A.Fake<UserManager<User>>();
-        var signInManagerFake = A.Fake<SignInManager<User>>();
+        var accountServiceFake = A.Fake<IAccountService>();
         var tokenGeneratorFake = A.Fake<ITokenGenerator>();
-        var controller = new UserController(userManagerFake, signInManagerFake, tokenGeneratorFake);
+        var controller = new UserController(accountServiceFake, tokenGeneratorFake);
 
         const string username = "testuser";
         const string password = "testpassword";
         var user = new User { UserName = username };
         var request = new LoginRequest { UserName = username, Password = password };
 
-        A.CallTo(() => userManagerFake.FindByNameAsync(username))
-            .Returns(user);
-        A.CallTo(() => signInManagerFake.PasswordSignInAsync(username, password, false, false))
-            .Returns(SignInResult.Success);
+        A.CallTo(() => accountServiceFake.CreateAsync(A<CreateRequestDto>._))
+            .Returns(new CreateSuccessResult());
 
         // Act
         var response = await controller.Login(request);
@@ -105,20 +93,17 @@ public class UserControllerTests
     public async Task Login_ShouldReturnOkObjectResultWithGeneratedJwtToken_WhenCredentialsAreValid()
     {
         // Arrange
-        var userManagerFake = A.Fake<UserManager<User>>();
-        var signInManagerFake = A.Fake<SignInManager<User>>();
+        var accountServiceFake = A.Fake<IAccountService>();
         var tokenGeneratorFake = A.Fake<ITokenGenerator>();
-        var controller = new UserController(userManagerFake, signInManagerFake, tokenGeneratorFake);
+        var controller = new UserController(accountServiceFake, tokenGeneratorFake);
 
         const string username = "testuser";
         const string password = "testpassword";
         var user = new User { UserName = username };
         var request = new LoginRequest { UserName = username, Password = password };
 
-        A.CallTo(() => userManagerFake.FindByNameAsync(username))
-            .Returns(user);
-        A.CallTo(() => signInManagerFake.CheckPasswordSignInAsync(user, password, false))
-            .Returns(SignInResult.Success);
+        A.CallTo(() => accountServiceFake.LoginAsync(A<LoginRequestDto>._))
+            .Returns(new LoginSuccessResult());
 
         var expectedToken = "generated-jwt-token";
         A.CallTo(() => tokenGeneratorFake.GenerateToken(user.UserName))
@@ -138,17 +123,16 @@ public class UserControllerTests
     public async Task Login_ShouldReturnUnauthorized_WhenUserNotFound()
     {
         // Arrange
-        var userManagerFake = A.Fake<UserManager<User>>();
-        var signInManagerFake = A.Fake<SignInManager<User>>();
+        var accountServiceFake = A.Fake<IAccountService>();
         var tokenGeneratorFake = A.Fake<ITokenGenerator>();
-        var controller = new UserController(userManagerFake, signInManagerFake, tokenGeneratorFake);
+        var controller = new UserController(accountServiceFake, tokenGeneratorFake);
 
         const string username = "testuser";
         const string password = "testpassword";
         var request = new LoginRequest { UserName = username, Password = password };
 
-        A.CallTo(() => userManagerFake.FindByNameAsync(username))
-            .Returns((User?)null);
+        A.CallTo(() => accountServiceFake.LoginAsync(A<LoginRequestDto>._))
+            .Returns(new UserNotFoundResult());
 
         // Act
         var response = await controller.Login(request);
@@ -162,20 +146,17 @@ public class UserControllerTests
     public async Task Login_ShouldReturnUnauthorized_WhenCredentialsAreInvalid()
     {
         // Arrange
-        var userManagerFake = A.Fake<UserManager<User>>();
-        var signInManagerFake = A.Fake<SignInManager<User>>();
+        var accountServiceFake = A.Fake<IAccountService>();
         var tokenGeneratorFake = A.Fake<ITokenGenerator>();
-        var controller = new UserController(userManagerFake, signInManagerFake, tokenGeneratorFake);
+        var controller = new UserController(accountServiceFake, tokenGeneratorFake);
 
         const string username = "testuser";
         const string password = "testpassword";
         var user = new User { UserName = username };
         var request = new LoginRequest { UserName = username, Password = password };
 
-        A.CallTo(() => userManagerFake.FindByNameAsync(username))
-            .Returns(user);
-        A.CallTo(() => signInManagerFake.PasswordSignInAsync(user, password, false, false))
-            .Returns(SignInResult.Failed);
+        A.CallTo(() => accountServiceFake.LoginAsync(A<LoginRequestDto>._))
+            .Returns(new InvalidPasswordResult());
 
         // Act
         var response = await controller.Login(request);
