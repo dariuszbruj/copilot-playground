@@ -1,4 +1,4 @@
-namespace Apartments.Domain.Services.AccountService;
+namespace Apartments.Domain.Services.AccountService.Models;
 
 public record LockoutOnFailure(bool Enabled)
 {

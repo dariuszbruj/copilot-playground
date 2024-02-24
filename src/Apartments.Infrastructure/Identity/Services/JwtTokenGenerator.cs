@@ -19,10 +19,13 @@ public class JwtTokenGenerator(TimeProvider timeProvider, IOptions<JwtTokenGener
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, username) }),
+            IssuedAt = timeProvider.GetUtcNow().DateTime,
             Expires = timeProvider.GetUtcNow().Add(_options.ExpirationTime).DateTime,
-            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
+            NotBefore = timeProvider.GetUtcNow().DateTime
         };
         var token = tokenHandler.CreateToken(tokenDescriptor);
+        
         return tokenHandler.WriteToken(token);
     }
 }
