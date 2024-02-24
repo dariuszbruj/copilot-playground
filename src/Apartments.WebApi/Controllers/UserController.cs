@@ -1,5 +1,8 @@
 using Apartments.Domain.Services;
 using Apartments.Domain.Services.AccountService;
+using Apartments.Domain.Services.AccountService.Dtos;
+using Apartments.Domain.Services.AccountService.Models;
+using Apartments.Domain.Services.AccountService.Results;
 using Apartments.WebApi.Requests;
 using Apartments.WebApi.Response;
 using Microsoft.AspNetCore.Mvc;
@@ -12,14 +15,14 @@ public class UserController(IAccountService accountService, ITokenGenerator toke
     : ControllerBase
 {
     [HttpPost("login")]
-    public async Task<ActionResult<LoginResponse>> Login(LoginRequest request)
+    public async Task<ActionResult<LoginResponse>> LoginAsync(LoginRequest request, CancellationToken cancellationToken = default)
     {
         var loginRequest = new LoginRequestDto(
             new UserName(request.UserName),
             new Password(request.Password),
             new LockoutOnFailure(true));
 
-        var result = await accountService.LoginAsync(loginRequest);
+        var result = await accountService.LoginAsync(loginRequest, cancellationToken);
 
         if (result is not LoginSuccessResult)
         {
@@ -34,19 +37,19 @@ public class UserController(IAccountService accountService, ITokenGenerator toke
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register(RegisterRequest request)
+    public async Task<ActionResult<CreateResult>> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken = default)
     {
         var createRequest = new CreateRequestDto(
             new UserName(request.UserName),
             new Password(request.Password));
 
-        var result = await accountService.CreateAsync(createRequest);
+        var result = await accountService.CreateAsync(createRequest, cancellationToken);
 
         // switch return on type
         return result switch
         {
-            CreateSuccessResult => Ok(),
-            CreateErrorResult badRequest => BadRequest(badRequest.ErrorMessage),
+            SuccessCreateResult => Ok(),
+            ErrorCreateResult badRequest => BadRequest(badRequest.ErrorMessage),
             _ => BadRequest()
         };
     }
