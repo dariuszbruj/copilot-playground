@@ -9,7 +9,7 @@ using FakeItEasy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Apartment.Api.UnitTests.Controllers;
+namespace Apartment.Api.UnitTests.WebApi.Controllers;
 
 public class UserControllerTests
 {
