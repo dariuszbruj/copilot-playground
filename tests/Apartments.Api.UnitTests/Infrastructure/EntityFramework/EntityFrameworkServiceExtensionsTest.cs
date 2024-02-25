@@ -3,7 +3,7 @@ using Apartments.Infrastructure.EntityFramework.Contexts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Apartments.Infrastructure.UnitTests.EntityFramework
+namespace Apartment.Api.UnitTests.Infrastructure.EntityFramework
 {
     public class EntityFrameworkServiceExtensionsTests
     {
