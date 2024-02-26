@@ -10,4 +10,8 @@
     <ProjectReference Include="..\Apartments.Domain\Apartments.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="FluentResults" Version="3.15.2" />
+  </ItemGroup>
+
 </Project>

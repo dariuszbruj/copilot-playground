@@ -1,9 +1,10 @@
-namespace Apartments.Api.UnitTests.Domain;
+namespace Apartments.Domain;
 
 public record Apartment
 {
     public Guid Id { get; set; }
     public Address Address { get; set; } = new();
+    public string Name { get; set; } = string.Empty;
 }
 
 public record Address
