@@ -4,8 +4,8 @@ namespace Apartments.Domain.Services.Apartments;
 
 public interface IApartmentRepository
 {
-    Task<ApartmentResult> GetApartmentByIdAsync(Guid id);
-    Task AddAsync(Apartment apartment);
-    Task<ApartmentResult>  UpdateAsync(Apartment apartment);
-    Task  DeleteAsync(Guid id);
+    Task<Apartment> GetApartmentByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    Task AddAsync(Apartment apartment, CancellationToken cancellationToken = default);
+    Task<ApartmentResult>  UpdateAsync(Apartment apartment, CancellationToken cancellationToken = default);
+    Task  DeleteAsync(Guid id, CancellationToken cancellationToken = default);
 }

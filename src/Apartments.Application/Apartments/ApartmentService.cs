@@ -1,37 +1,51 @@
 using Apartments.Domain;
 using Apartments.Domain.Services.Apartments;
+using Apartments.Domain.Services.Apartments.Dtos;
+using Apartments.WebApi.Requests;
 
 namespace Apartments.Application.Apartments;
 
 public class ApartmentService(IApartmentRepository apartmentRepository)
 {
-    private readonly IApartmentRepository _apartmentRepository = apartmentRepository 
-        ?? throw new ArgumentNullException(nameof(apartmentRepository));
-
-    public async Task CreateApartment(Apartment apartment)
+    public async Task<Result<Apartment>> CreateApartment(CreateApartmentDto createApartmentDto,
+        CancellationToken cancellationToken  = default)
     {
-        // Your implementation goes here
-        await _apartmentRepository.AddAsync(apartment);
+        var apartment = new Apartment
+        {
+            Name = createApartmentDto.Name
+        };
+        
+        await apartmentRepository.AddAsync(apartment, cancellationToken);
+        
+        return Result<Apartment>.Ok(apartment);
     }
 
-    public async Task<Apartment> GetApartment(Guid id)
+    public async Task<Result<Apartment>> GetAsync(Guid id, 
+        CancellationToken cancellationToken = default)
     {
-        // Your implementation goes here
-        var result =  await _apartmentRepository.GetApartmentByIdAsync(id);
-
-        // TODO: finish it.
-        return null;
+        var apartment = await apartmentRepository
+            .GetApartmentByIdAsync(id, cancellationToken);
+        
+        return Result<Apartment>.Ok(apartment);
     }
 
-    public async Task UpdateApartment(Apartment apartment)
+    public async Task<Result> UpdateApartment(UpdateApartmentDto dto, 
+        CancellationToken cancellationToken = default)
     {
-        // Your implementation goes here
-        await _apartmentRepository.UpdateAsync(apartment);
+        // TODO: UnitOfWork
+        var apartment = await apartmentRepository
+            .GetApartmentByIdAsync(dto.Id, cancellationToken);
+        
+        // TODO: Update apartment
+        
+        await apartmentRepository.UpdateAsync(apartment, cancellationToken);
+
+        return Result.Ok();
     }
 
-    public async Task DeleteApartment(Guid id)
+    public async Task DeleteAsync(Guid id, 
+        CancellationToken cancellationToken = default)
     {
-        // Your implementation goes here
-        await _apartmentRepository.DeleteAsync(id);
+        await apartmentRepository.DeleteAsync(id, cancellationToken);
     }
 }

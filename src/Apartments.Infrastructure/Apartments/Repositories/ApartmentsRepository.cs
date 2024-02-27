@@ -10,16 +10,15 @@ namespace Apartments.Infrastructure.Apartments.Repositories
     public class ApartmentRepository(ApplicationDbContext context) 
         : IApartmentRepository
     {
-        public async Task<ApartmentResult> GetApartmentByIdAsync(Guid id)
+        public async Task<Apartment> GetApartmentByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
-            var apartmentDbModel = await context.Apartments.FirstOrDefaultAsync(x => x.Guid == id);
+            var apartmentDbModel = await context.Apartments
+                .FirstAsync(x => x.Guid == id, cancellationToken);
 
-            return apartmentDbModel == null 
-                ? ApartmentResult.NotFound() 
-                : ApartmentResult.Ok(apartmentDbModel.ToApartment());
+            return apartmentDbModel.ToApartment();
         }
 
-        public async Task AddAsync(Apartment apartment)
+        public async Task AddAsync(Apartment apartment, CancellationToken cancellationToken = default)
         {
             var dbModel = ApartmentsDbModelExtensions.FromDomainModel(apartment);
             context.Apartments.Add(dbModel);
@@ -27,7 +26,7 @@ namespace Apartments.Infrastructure.Apartments.Repositories
             await context.SaveChangesAsync();
         }
 
-        public async Task<ApartmentResult> UpdateAsync(Apartment apartment)
+        public async Task<ApartmentResult> UpdateAsync(Apartment apartment, CancellationToken cancellationToken = default)
         {
             var apartmentDbModel = await context.Apartments.FirstOrDefaultAsync(x => x.Guid == apartment.Id);
 
@@ -45,7 +44,7 @@ namespace Apartments.Infrastructure.Apartments.Repositories
             return ApartmentResult.Ok();
         }
 
-        public async Task DeleteAsync(Guid id)
+        public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
         {
             var apartmentDbModel = await context.Apartments.FirstOrDefaultAsync(x => x.Guid == id);
 
