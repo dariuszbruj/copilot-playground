@@ -10,7 +10,9 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddIdentityServices(builder.Configuration);
 
-builder.Services.AddControllers();
+builder.Services.AddControllers( x => 
+    x.SuppressAsyncSuffixInActionNames = false
+);
 
 var app = builder.Build();
 
