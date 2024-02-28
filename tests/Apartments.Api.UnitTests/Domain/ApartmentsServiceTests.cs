@@ -1,6 +1,7 @@
 using Apartments.Application.Apartments;
 using Apartments.Domain.Services.Apartments;
 using Apartments.Domain.Services.Apartments.Dtos;
+using Azure.Core;
 using FakeItEasy;
 
 namespace Apartment.Api.UnitTests.Domain;
@@ -25,7 +26,8 @@ public class ApartmentServiceTests
     [Fact]
     public async Task CanCreateApartment()
     {
-        var request = new CreateApartmentDto();
+
+        var request = new CreateApartmentDto() { Name = "", Address = new CreateApartmentAddressDto() };
         
         var result = await _apartmentService.CreateApartment(request);
         
