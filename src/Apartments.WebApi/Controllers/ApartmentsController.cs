@@ -28,7 +28,16 @@ public class ApartmentsController(ApartmentService apartmentService)
     {
         var dto = new CreateApartmentDto
         {
-            Name = request.Name
+            Name = request.Name,
+            Address = new CreateApartmentAddressDto()
+            {
+                Street = request.Street,
+                City = request.City,
+                State = request.State,
+                ZipCode = request.ZipCode,
+                BuildingNo = request.BuildingNumber,
+                FlatNumber = request.FlatNumber,
+            }
         };
         
         var result = await apartmentService.CreateApartment(dto, cancellationToken);

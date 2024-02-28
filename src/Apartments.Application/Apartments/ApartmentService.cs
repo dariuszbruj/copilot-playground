@@ -7,15 +7,27 @@ namespace Apartments.Application.Apartments;
 
 public class ApartmentService(IApartmentRepository apartmentRepository)
 {
+    private readonly IApartmentRepository _apartmentRepository = apartmentRepository
+        ?? throw new ArgumentNullException(nameof(apartmentRepository));
+
     public async Task<Result<Apartment>> CreateApartment(CreateApartmentDto createApartmentDto,
         CancellationToken cancellationToken  = default)
     {
         var apartment = new Apartment
         {
-            Name = createApartmentDto.Name
+            Name = createApartmentDto.Name,
+            Address = new Address()
+            {
+                Street = createApartmentDto.Address.Street,
+                City = createApartmentDto.Address.City,
+                State = createApartmentDto.Address.State,
+                ZipCode = createApartmentDto.Address.ZipCode,
+                BuildingNo = createApartmentDto.Address.BuildingNo,
+                FlatNumber = createApartmentDto.Address.FlatNumber
+            }
         };
         
-        await apartmentRepository.AddAsync(apartment, cancellationToken);
+        await _apartmentRepository.AddAsync(apartment, cancellationToken);
         
         return Result<Apartment>.Ok(apartment);
     }
@@ -23,7 +35,7 @@ public class ApartmentService(IApartmentRepository apartmentRepository)
     public async Task<Result<Apartment>> GetAsync(Guid id, 
         CancellationToken cancellationToken = default)
     {
-        var apartment = await apartmentRepository
+        var apartment = await _apartmentRepository
             .GetApartmentByIdAsync(id, cancellationToken);
         
         return Result<Apartment>.Ok(apartment);
@@ -33,12 +45,12 @@ public class ApartmentService(IApartmentRepository apartmentRepository)
         CancellationToken cancellationToken = default)
     {
         // TODO: UnitOfWork
-        var apartment = await apartmentRepository
+        var apartment = await _apartmentRepository
             .GetApartmentByIdAsync(dto.Id, cancellationToken);
         
         // TODO: Update apartment
         
-        await apartmentRepository.UpdateAsync(apartment, cancellationToken);
+        await _apartmentRepository.UpdateAsync(apartment, cancellationToken);
 
         return Result.Ok();
     }
@@ -46,6 +58,6 @@ public class ApartmentService(IApartmentRepository apartmentRepository)
     public async Task DeleteAsync(Guid id, 
         CancellationToken cancellationToken = default)
     {
-        await apartmentRepository.DeleteAsync(id, cancellationToken);
+        await _apartmentRepository.DeleteAsync(id, cancellationToken);
     }
 }

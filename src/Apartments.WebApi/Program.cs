@@ -1,5 +1,7 @@
+using Apartments.Application.Apartments;
 using Apartments.Infrastructure.EntityFramework;
 using Apartments.Infrastructure.Identity;
+using Apartments.WebApi.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +11,8 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddIdentityServices(builder.Configuration);
+
+builder.Services.AddApartmentsModule();
 
 builder.Services.AddControllers( x => 
     x.SuppressAsyncSuffixInActionNames = false

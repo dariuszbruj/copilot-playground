@@ -6,5 +6,5 @@ namespace Apartments.Infrastructure.EntityFramework.Contexts;
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
     : DbContext(options)
 {
-    public readonly DbSet<ApartmentDbModel> Apartments = default!;
+    public DbSet<ApartmentDbModel> Apartments { get; set; } = default!;
 }
