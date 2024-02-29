@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Apartments.WebApi.Controllers;
 
 [ApiController]
-[Route("apartments")]
+[Route("[controller]")]
 public class ApartmentsController(ApartmentService apartmentService)
     : ControllerBase
 {
@@ -43,7 +43,7 @@ public class ApartmentsController(ApartmentService apartmentService)
         var result = await apartmentService.CreateApartment(dto, cancellationToken);
 
         return result.IsSuccess 
-            ? CreatedAtAction(nameof(GetAsync), new { id = result.Value.Id }, result.Value) 
+            ? CreatedAtAction(nameof(GetAsync), new { id = result.Value }, null) 
             : BadRequest(result.Errors);
     }
 

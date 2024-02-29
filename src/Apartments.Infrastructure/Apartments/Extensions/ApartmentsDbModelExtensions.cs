@@ -14,14 +14,38 @@ public static class ApartmentsDbModelExtensions
         var apartment = new Apartment
         {
             Id = dbModel.Guid,
-            Name = dbModel.Name
+            Name = dbModel.Name,
+            Address = dbModel.Address is not null 
+                ? new Address()
+                    {
+                        BuildingNo = dbModel.Address.BuildingNumber,
+                        FlatNumber = dbModel.Address.FlatNumber,
+                        Street = dbModel.Address.Street,
+                        City = dbModel.Address.City,
+                        State = dbModel.Address.State,
+                        ZipCode = dbModel.Address.ZipCode
+                    }
+                : Address.Empty
         };
 
         return apartment;
     }
 
-    public static ApartmentDbModel FromDomainModel(Apartment domainModel) => 
-        new ApartmentDbModel{ Guid = domainModel.Id, Name = domainModel.Name };
+    public static ApartmentDbModel FromDomainModel(Apartment domainModel) =>
+        new()
+        {
+            Guid = domainModel.Id,
+            Name = domainModel.Name,
+            Address = new ApartmentAddressDbModel()
+            {
+                BuildingNumber = domainModel.Address.BuildingNo,
+                FlatNumber = domainModel.Address.FlatNumber,
+                Street = domainModel.Address.Street,
+                City = domainModel.Address.City,
+                State = domainModel.Address.State,
+                ZipCode = domainModel.Address.ZipCode
+            }
+        };
 }
 
 public static class ApartmentsModuleExtensions

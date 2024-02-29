@@ -9,6 +9,8 @@ public record Apartment
 
 public record Address
 {
+    public static Address Empty = new Address();
+    
     public string Street { get; set; } = string.Empty;
     public string BuildingNo { get; set; }= string.Empty;
     public string FlatNumber { get; set; }= string.Empty;

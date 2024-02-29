@@ -14,8 +14,12 @@ builder.Services.AddIdentityServices(builder.Configuration);
 
 builder.Services.AddApartmentsModule();
 
-builder.Services.AddControllers( x => 
-    x.SuppressAsyncSuffixInActionNames = false
+builder.Services.AddRouting(options =>
+{
+    options.LowercaseUrls = true;
+});
+builder.Services.AddControllers(options => 
+    options.SuppressAsyncSuffixInActionNames = false
 );
 
 var app = builder.Build();
