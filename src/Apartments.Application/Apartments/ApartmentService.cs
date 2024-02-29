@@ -10,7 +10,7 @@ public class ApartmentService(IApartmentRepository apartmentRepository)
     private readonly IApartmentRepository _apartmentRepository = apartmentRepository
         ?? throw new ArgumentNullException(nameof(apartmentRepository));
 
-    public async Task<Result<Apartment>> CreateApartment(CreateApartmentDto createApartmentDto,
+    public async Task<Result<Guid>> CreateApartment(CreateApartmentDto createApartmentDto,
         CancellationToken cancellationToken  = default)
     {
         var apartment = new Apartment
@@ -27,9 +27,9 @@ public class ApartmentService(IApartmentRepository apartmentRepository)
             }
         };
         
-        await _apartmentRepository.AddAsync(apartment, cancellationToken);
+        var guid = await _apartmentRepository.AddAsync(apartment, cancellationToken);
         
-        return Result<Apartment>.Ok(apartment);
+        return Result<Guid>.Ok(guid);
     }
 
     public async Task<Result<Apartment>> GetAsync(Guid id, 

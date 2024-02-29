@@ -20,17 +20,20 @@ namespace Apartments.Infrastructure.Apartments.Repositories
         public async Task<Apartment> GetApartmentByIdAsync(Guid id, CancellationToken cancellationToken = default)
         {
             var apartmentDbModel = await _context.Apartments
-                .FirstAsync(x => x.Guid == id, cancellationToken);
+                .Include(a => a.Address)
+                .FirstAsync(x => x.Guid == id, cancellationToken: cancellationToken);
 
             return apartmentDbModel.ToApartment();
         }
 
-        public async Task AddAsync(Apartment apartment, CancellationToken cancellationToken = default)
+        public async Task<Guid> AddAsync(Apartment apartment, CancellationToken cancellationToken = default)
         {
             var dbModel = ApartmentsDbModelExtensions.FromDomainModel(apartment);
             _context.Apartments.Add(dbModel);
             
             await _context.SaveChangesAsync(cancellationToken);
+
+            return dbModel.Guid;
         }
 
         public async Task<ApartmentResult> UpdateAsync(Apartment apartment, CancellationToken cancellationToken = default)
