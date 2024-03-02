@@ -48,7 +48,10 @@ public class ApartmentService(IApartmentRepository apartmentRepository)
         var apartment = await _apartmentRepository
             .GetApartmentByIdAsync(dto.Id, cancellationToken);
         
-        // TODO: Update apartment
+        if (dto.Name is not null)
+        {
+            apartment.Name = dto.Name;
+        }
         
         await _apartmentRepository.UpdateAsync(apartment, cancellationToken);
 
