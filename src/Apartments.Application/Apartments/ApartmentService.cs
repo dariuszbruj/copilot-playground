@@ -32,6 +32,15 @@ public class ApartmentService(IApartmentRepository apartmentRepository)
         return Result<Guid>.Ok(guid);
     }
 
+    public async Task<Result<IEnumerable<Apartment>>> GetAsync(
+        CancellationToken cancellationToken = default)
+    {
+        var apartments = await _apartmentRepository
+            .GetApartmentsAsync( cancellationToken);
+        
+        return Result<IEnumerable<Apartment>>.Ok(apartments);
+    }
+    
     public async Task<Result<Apartment>> GetAsync(Guid id, 
         CancellationToken cancellationToken = default)
     {
@@ -44,7 +53,6 @@ public class ApartmentService(IApartmentRepository apartmentRepository)
     public async Task<Result> UpdateApartment(UpdateApartmentDto dto, 
         CancellationToken cancellationToken = default)
     {
-        // TODO: UnitOfWork
         var apartment = await _apartmentRepository
             .GetApartmentByIdAsync(dto.Id, cancellationToken);
         

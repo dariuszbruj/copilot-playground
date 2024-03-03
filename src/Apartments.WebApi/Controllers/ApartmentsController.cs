@@ -10,17 +10,24 @@ namespace Apartments.WebApi.Controllers;
 public class ApartmentsController(ApartmentService apartmentService)
     : ControllerBase
 {
+    [HttpGet]
+    public async Task<IActionResult> GetAsync(CancellationToken cancellationToken)
+    {
+        var result = await apartmentService.GetAsync(cancellationToken);
+
+        return result.IsSuccess 
+            ? Ok(result.Value) 
+            : NotFound(result.Errors);
+    }
+    
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetAsync(Guid id, CancellationToken cancellationToken)
     {
         var result = await apartmentService.GetAsync(id, cancellationToken);
-            
-        if (result.IsSuccess)
-        {
-            return Ok(result.Value);
-        }
-            
-        return NotFound(result.Errors);
+
+        return result.IsSuccess 
+            ? Ok(result.Value) 
+            : NotFound(result.Errors);
     }
 
     [HttpPost]

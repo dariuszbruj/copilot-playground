@@ -8,4 +8,5 @@ public interface IApartmentRepository
     Task<Guid> AddAsync(Apartment apartment, CancellationToken cancellationToken = default);
     Task<ApartmentResult>  UpdateAsync(Apartment apartment, CancellationToken cancellationToken = default);
     Task  DeleteAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<IEnumerable<Apartment>> GetApartmentsAsync(CancellationToken cancellationToken = default);
 }

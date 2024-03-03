@@ -8,8 +8,7 @@ public static class ApplicationModuleExtensions
     public static IServiceCollection AddApartmentsModule(this IServiceCollection services)
     {
         services.AddApartmentsInfrastructure();
-        
-        services.AddScoped<ApartmentService>();
+        services.AddApartmentsServices();
         
         return services;
     }
