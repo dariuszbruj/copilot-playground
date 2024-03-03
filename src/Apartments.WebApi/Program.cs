@@ -1,4 +1,3 @@
-using Apartments.Application.Apartments;
 using Apartments.Infrastructure.EntityFramework;
 using Apartments.Infrastructure.Identity;
 using Apartments.WebApi.Extensions;

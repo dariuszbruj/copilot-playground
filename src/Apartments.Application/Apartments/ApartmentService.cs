@@ -44,7 +44,6 @@ public class ApartmentService(IApartmentRepository apartmentRepository)
     public async Task<Result> UpdateApartment(UpdateApartmentDto dto, 
         CancellationToken cancellationToken = default)
     {
-        // TODO: UnitOfWork
         var apartment = await _apartmentRepository
             .GetApartmentByIdAsync(dto.Id, cancellationToken);
         
