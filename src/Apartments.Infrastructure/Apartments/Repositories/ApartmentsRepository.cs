@@ -22,6 +22,15 @@ namespace Apartments.Infrastructure.Apartments.Repositories
 
             return apartmentDbModel.ToApartment();
         }
+        
+        public async Task<IEnumerable<Apartment>> GetApartmentsAsync(CancellationToken cancellationToken = default)
+        {
+            var apartmentDbModel = await _context.Apartments
+                .Include(a => a.Address)
+                .ToListAsync( cancellationToken: cancellationToken);
+
+            return apartmentDbModel.Select(x => x.ToApartment()).ToList();
+        }
 
         public async Task<Guid> AddAsync(Apartment apartment, 
             CancellationToken cancellationToken = default)
