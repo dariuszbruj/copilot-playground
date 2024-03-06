@@ -1,8 +1,7 @@
 using Apartments.Domain.Services;
-using Apartments.Domain.Services.AccountService;
-using Apartments.Domain.Services.AccountService.Dtos;
-using Apartments.Domain.Services.AccountService.Models;
-using Apartments.Domain.Services.AccountService.Results;
+using Apartments.Domain.Services.AccountServices;
+using Apartments.Domain.Services.AccountServices.Dtos;
+using Apartments.Domain.Services.AccountServices.Models;
 using Apartments.WebApi.Requests;
 using Apartments.WebApi.Response;
 using Microsoft.AspNetCore.Mvc;
@@ -24,7 +23,7 @@ public class UserController(IAccountService accountService, ITokenGenerator toke
 
         var result = await accountService.LoginAsync(loginRequest, cancellationToken);
 
-        if (result is not LoginSuccessResult)
+        if (result.IsFailed)
         {
             return Unauthorized();
         }
@@ -37,7 +36,7 @@ public class UserController(IAccountService accountService, ITokenGenerator toke
     }
 
     [HttpPost("register")]
-    public async Task<ActionResult<CreateResult>> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken = default)
+    public async Task<ActionResult> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken = default)
     {
         var createRequest = new CreateRequestDto(
             new UserName(request.UserName),
@@ -46,11 +45,10 @@ public class UserController(IAccountService accountService, ITokenGenerator toke
         var result = await accountService.CreateAsync(createRequest, cancellationToken);
 
         // switch return on type
-        return result switch
+        return result.IsSuccess switch
         {
-            SuccessCreateResult => Ok(),
-            ErrorCreateResult badRequest => BadRequest(badRequest.ErrorMessage),
-            _ => BadRequest()
+            true => Ok(),
+            false => BadRequest(result.Errors)
         };
     }
 }

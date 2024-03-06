@@ -7,8 +7,8 @@ public static class ApplicationModuleExtensions
 {
     public static IServiceCollection AddApartmentsModule(this IServiceCollection services)
     {
-        services.AddApartmentsInfrastructure();
-        services.AddApartmentsServices();
+        services.AddApartmentsInfrastructureServices();
+        services.AddApartmentsApplicationServices();
         
         return services;
     }

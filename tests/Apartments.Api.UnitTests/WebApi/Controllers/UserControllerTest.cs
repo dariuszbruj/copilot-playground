@@ -1,7 +1,7 @@
+using Apartments.Domain;
 using Apartments.Domain.Services;
-using Apartments.Domain.Services.AccountService;
-using Apartments.Domain.Services.AccountService.Dtos;
-using Apartments.Domain.Services.AccountService.Results;
+using Apartments.Domain.Services.AccountServices;
+using Apartments.Domain.Services.AccountServices.Dtos;
 using Apartments.WebApi.Controllers;
 using Apartments.WebApi.Requests;
 using Apartments.WebApi.Response;
@@ -27,13 +27,13 @@ public class UserControllerTests
         var request = new RegisterRequest { UserName = username, Password = password };
 
         A.CallTo(() => accountServiceFake.CreateAsync(A<CreateRequestDto>._, A<CancellationToken>._))
-            .Returns(new SuccessCreateResult());
+            .Returns(Result.Ok());
 
         // Act
         var response = await controller.RegisterAsync(request);
 
         // Assert
-        Assert.IsType<OkResult>(response.Result);
+        Assert.IsType<OkResult>(response);
         A.CallTo(() => accountServiceFake.CreateAsync(
             A<CreateRequestDto>.That.Matches(u => u.UserName == user.UserName && u.Password == password), A<CancellationToken>._))
             .MustHaveHappenedOnceExactly();
@@ -52,7 +52,7 @@ public class UserControllerTests
         var request = new RegisterRequest { UserName = username, Password = password };
 
         var errors = new[] { "Error description" };
-        var result = new ErrorCreateResult() { ErrorMessage = errors };
+        var result = Result.Fail(errors);
 
         A.CallTo(() => accountServiceFake.CreateAsync(A<CreateRequestDto>._, A<CancellationToken>._))
             .Returns(result);
@@ -61,12 +61,10 @@ public class UserControllerTests
         var response = await controller.RegisterAsync(request);
 
         // Assert
-        var badRequestResult = Assert.IsType<BadRequestObjectResult>(response.Result);
-        Assert.Equal(result.ErrorMessage, badRequestResult.Value);
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(response);
+        Assert.Equal(result.Errors, badRequestResult.Value);
     }
-
-    private sealed record SomeInvalidCreateResult : CreateResult;
-
+    
     [Fact]
     public async Task Register_ShouldReturnBadRequestWhenThereInvalidResponseOccured()
     {
@@ -80,13 +78,13 @@ public class UserControllerTests
         var request = new RegisterRequest { UserName = username, Password = password };
 
         A.CallTo(() => accountServiceFake.CreateAsync(A<CreateRequestDto>._, A<CancellationToken>._))
-            .Returns(new SomeInvalidCreateResult());
+            .Returns(Result.Fail([]));
 
         // Act
         var response = await controller.RegisterAsync(request);
 
         // Assert
-        Assert.IsType<BadRequestResult>(response.Result);
+        Assert.IsType<BadRequestObjectResult>(response);
         A.CallTo(() => accountServiceFake.CreateAsync(
             A<CreateRequestDto>.That.Matches(u => u.UserName == username && u.Password == password), A<CancellationToken>._))
             .MustHaveHappenedOnceExactly();
@@ -101,11 +99,11 @@ public class UserControllerTests
         var controller = new UserController(accountServiceFake, tokenGeneratorFake);
 
         const string username = "testuser";
-        const string password = "testpassword"; ;
+        const string password = "testpassword";
         var request = new LoginRequest { UserName = username, Password = password };
 
         A.CallTo(() => accountServiceFake.LoginAsync(A<LoginRequestDto>._, A<CancellationToken>._))
-            .Returns(new LoginSuccessResult());
+            .Returns(Result.Ok());
 
         // Act
         var response = await controller.LoginAsync(request);
@@ -128,7 +126,7 @@ public class UserControllerTests
         var request = new LoginRequest { UserName = username, Password = password };
 
         A.CallTo(() => accountServiceFake.LoginAsync(A<LoginRequestDto>._, A<CancellationToken>._))
-            .Returns(new LoginSuccessResult());
+            .Returns(Result.Ok());
 
         var expectedToken = "generated-jwt-token";
         A.CallTo(() => tokenGeneratorFake.GenerateToken(username))
@@ -157,7 +155,7 @@ public class UserControllerTests
         var request = new LoginRequest { UserName = username, Password = password };
 
         A.CallTo(() => accountServiceFake.LoginAsync(A<LoginRequestDto>._, A<CancellationToken>._))
-            .Returns(new UserNotFoundLoginResult());
+            .Returns(Result.Fail([ "UserNotFound" ]));
 
         // Act
         var response = await controller.LoginAsync(request);
@@ -180,7 +178,7 @@ public class UserControllerTests
         var request = new LoginRequest { UserName = username, Password = password };
 
         A.CallTo(() => accountServiceFake.LoginAsync(A<LoginRequestDto>._, A<CancellationToken>._))
-            .Returns(new InvalidPasswordLoginResult());
+            .Returns(Result.Fail([ "InvalidPassword" ]));
 
         // Act
         var response = await controller.LoginAsync(request);

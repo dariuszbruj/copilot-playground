@@ -1,11 +1,12 @@
 using Apartments.Domain;
+using Apartments.Domain.Models;
 using Apartments.Domain.Services.Apartments;
 using Apartments.Domain.Services.Apartments.Dtos;
-using Apartments.WebApi.Requests;
 
 namespace Apartments.Application.Apartments;
 
 public class ApartmentService(IApartmentRepository apartmentRepository)
+    : IApartmentService
 {
     private readonly IApartmentRepository _apartmentRepository = apartmentRepository
         ?? throw new ArgumentNullException(nameof(apartmentRepository));
@@ -32,22 +33,23 @@ public class ApartmentService(IApartmentRepository apartmentRepository)
         return Result<Guid>.Ok(guid);
     }
 
-    public async Task<Result<IEnumerable<Apartment>>> GetAsync(
+    public async Task<Result<IEnumerable<ApartmentDto>>> GetAsync(
         CancellationToken cancellationToken = default)
     {
         var apartments = await _apartmentRepository
             .GetApartmentsAsync( cancellationToken);
         
-        return Result<IEnumerable<Apartment>>.Ok(apartments);
+        return Result<IEnumerable<ApartmentDto>>
+            .Ok(apartments.Select(x => new ApartmentDto() { Id = x.Id, Name = x.Name }));
     }
     
-    public async Task<Result<Apartment>> GetAsync(Guid id, 
+    public async Task<Result<ApartmentDto>> GetAsync(Guid id, 
         CancellationToken cancellationToken = default)
     {
         var apartment = await _apartmentRepository
             .GetApartmentByIdAsync(id, cancellationToken);
         
-        return Result<Apartment>.Ok(apartment);
+        return Result<ApartmentDto>.Ok(new ApartmentDto() { Id = apartment.Id, Name = apartment.Name });
     }
 
     public async Task<Result> UpdateApartment(UpdateApartmentDto dto, 

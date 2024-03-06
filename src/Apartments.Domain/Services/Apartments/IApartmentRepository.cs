@@ -1,3 +1,4 @@
+using Apartments.Domain.Models;
 using Apartments.Domain.Services.Apartments.Results;
 
 namespace Apartments.Domain.Services.Apartments;

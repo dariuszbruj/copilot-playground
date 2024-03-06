@@ -1,4 +1,5 @@
 using Apartments.Domain;
+using Apartments.Domain.Models;
 using Apartments.Domain.Services.Apartments;
 using Apartments.Infrastructure.Apartments.Models;
 using Apartments.Infrastructure.Apartments.Repositories;
@@ -49,7 +50,7 @@ public static class ApartmentsDbModelExtensions
 
 public static class ApartmentsModuleExtensions
 {
-    public static IServiceCollection AddApartmentsInfrastructure(this IServiceCollection services)
+    public static IServiceCollection AddApartmentsInfrastructureServices(this IServiceCollection services)
     {
         services.AddScoped<IApartmentRepository, ApartmentRepository>();
 
