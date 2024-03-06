@@ -1,6 +1,6 @@
-using Apartments.Domain.Services.AccountService.Dtos;
-using Apartments.Domain.Services.AccountService.Models;
-using Apartments.Domain.Services.AccountService.Results;
+using Apartments.Domain;
+using Apartments.Domain.Services.AccountServices.Dtos;
+using Apartments.Domain.Services.AccountServices.Models;
 using Apartments.Infrastructure.Identity.Models;
 using Apartments.Infrastructure.Identity.Services;
 using FakeItEasy;
@@ -27,7 +27,8 @@ namespace Apartment.Api.UnitTests.Infrastructure.Identity.Services
             var result = await accountService.CreateAsync(requestDto);
 
             // Assert
-            Assert.IsType<SuccessCreateResult>(result);
+            Assert.IsType<Result>(result);
+            Assert.True(result.IsSuccess);
         }
 
         [Fact]
@@ -53,8 +54,9 @@ namespace Apartment.Api.UnitTests.Infrastructure.Identity.Services
             var result = await accountService.CreateAsync(requestDto);
 
             // Assert
-            var errorResult = Assert.IsType<ErrorCreateResult>(result);
-            Assert.Equal(identityErrors.Select(e => e.Description), errorResult.ErrorMessage);
+            var errorResult = Assert.IsType<Result>(result);
+            Assert.True(result.IsFailed);
+            Assert.Equal(identityErrors.Select(e => e.Description), errorResult.Errors);
         }
 
         [Fact]
@@ -75,7 +77,9 @@ namespace Apartment.Api.UnitTests.Infrastructure.Identity.Services
             var result = await accountService.LoginAsync(requestDto);
 
             // Assert
-            Assert.IsType<UserNotFoundLoginResult>(result);
+            Assert.IsType<Result>(result);
+            Assert.True(result.IsFailed);
+            Assert.Equal(["UserNotFound"], result.Errors);
         }
 
         [Fact]
@@ -101,7 +105,8 @@ namespace Apartment.Api.UnitTests.Infrastructure.Identity.Services
             var result = await accountService.LoginAsync(requestDto);
 
             // Assert
-            Assert.IsType<LoginSuccessResult>(result);
+            Assert.IsType<Result>(result);
+            Assert.True(result.IsSuccess);
         }
 
         [Fact]
@@ -127,7 +132,9 @@ namespace Apartment.Api.UnitTests.Infrastructure.Identity.Services
             var result = await accountService.LoginAsync(requestDto);
 
             // Assert
-            Assert.IsType<UserLockOutFoundLoginResult>(result);
+            Assert.IsType<Result>(result);
+            Assert.True(result.IsFailed);
+            Assert.Equal(["UserLockOut"], result.Errors);
         }
 
         [Fact]
@@ -153,7 +160,9 @@ namespace Apartment.Api.UnitTests.Infrastructure.Identity.Services
             var result = await accountService.LoginAsync(requestDto);
 
             // Assert
-            Assert.IsType<InvalidPasswordLoginResult>(result);
+            Assert.IsType<Result>(result);
+            Assert.True(result.IsFailed);
+            Assert.Equal(["InvalidPassword"], result.Errors);
         }
     }
 }

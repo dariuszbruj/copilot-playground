@@ -51,7 +51,7 @@ public class ApartmentServiceTests
     [Fact]
     public async Task CanUpdateApartment()
     {
-        var apartment = new Apartments.Domain.Apartment();
+        var apartment = new Apartments.Domain.Models.Apartment();
         //var result = await _apartmentService.UpdateApartment(apartment);
         //Assert.NotNull(result);
     }

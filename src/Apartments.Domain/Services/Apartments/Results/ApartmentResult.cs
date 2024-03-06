@@ -1,4 +1,6 @@
-﻿namespace Apartments.Domain.Services.Apartments.Results;
+﻿using Apartments.Domain.Models;
+
+namespace Apartments.Domain.Services.Apartments.Results;
 
 public abstract record ApartmentResult
 {

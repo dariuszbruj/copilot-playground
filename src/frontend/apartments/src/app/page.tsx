@@ -1,5 +1,22 @@
+'use server'
+
 import React from 'react';
 import { Table } from 'antd';
+
+async function renderTags(address : any): Promise<React.JSX.Element> {
+  "use server";
+
+  return (
+    <>
+        <div>Street: {address.street}</div>
+        <div>Building No: {address.buildingNo}</div>
+        <div>Flat Number: {address.flatNumber}</div>
+        <div>City: {address.city}</div>
+        <div>State: {address.state}</div>
+        <div>Zip Code: {address.zipCode}</div>
+    </>
+  );
+}
 
 async function HomePage() {
   const apartments = await getData()
@@ -13,7 +30,13 @@ async function HomePage() {
     {
       title: 'Name',
       dataIndex: 'name',
-      key: 'name',
+      key: 'name'
+    },
+    {
+      title: 'Address',
+      dataIndex: 'address',
+      key: 'address',
+      render: renderTags,
     },
   ];
 
@@ -27,8 +50,6 @@ async function HomePage() {
 
 async function getData() {
   const res = await fetch('http://localhost:5000/apartments')
-  // The return value is *not* serialized
-  // You can return Date, Map, Set, etc.
 
   if (!res.ok) {
     // This will activate the closest `error.js` Error Boundary
@@ -37,6 +58,5 @@ async function getData() {
 
   return res.json()
 }
-
 
 export default HomePage;

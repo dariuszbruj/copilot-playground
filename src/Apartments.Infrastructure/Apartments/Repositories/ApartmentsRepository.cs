@@ -1,4 +1,5 @@
 using Apartments.Domain;
+using Apartments.Domain.Models;
 using Apartments.Domain.Services.Apartments;
 using Apartments.Domain.Services.Apartments.Results;
 using Apartments.Infrastructure.Apartments.Extensions;

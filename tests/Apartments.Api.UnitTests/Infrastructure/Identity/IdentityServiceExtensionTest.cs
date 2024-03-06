@@ -1,5 +1,5 @@
 using Apartments.Domain.Services;
-using Apartments.Domain.Services.AccountService;
+using Apartments.Domain.Services.AccountServices;
 using Apartments.Infrastructure.EntityFramework.Contexts;
 using Apartments.Infrastructure.Identity;
 using Apartments.Infrastructure.Identity.Models;
