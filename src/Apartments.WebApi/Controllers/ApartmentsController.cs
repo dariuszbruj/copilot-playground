@@ -1,5 +1,5 @@
-using Apartments.Domain.Services.Apartments;
-using Apartments.Domain.Services.Apartments.Dtos;
+using Apartments.Application.Modules.Apartments;
+using Apartments.Application.Modules.Apartments.Dtos;
 using Apartments.WebApi.Requests;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,53 +11,53 @@ public class ApartmentsController(IApartmentService apartmentService)
     : ControllerBase
 {
     [HttpGet]
-    public async Task<IResult> GetAsync(CancellationToken cancellationToken)
+    public async Task<ActionResult<IEnumerable<ApartmentDto>>> GetAsync(CancellationToken cancellationToken)
     {
         var result = await apartmentService.GetAsync(cancellationToken);
 
         return result.IsSuccess 
-            ? Results.Ok(result.Value) 
-            : Results.NotFound(result.Errors);
+            ? Ok(result.Value) 
+            : NotFound();
     }
     
     [HttpGet("{id:guid}")]
-    public async Task<IResult> GetAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<ActionResult<ApartmentDto>> GetAsync(Guid id, CancellationToken cancellationToken)
     {
         var result = await apartmentService.GetAsync(id, cancellationToken);
 
         return result.IsSuccess 
-            ? Results.Ok(result.Value) 
-            : Results.NotFound(result.Errors);
+            ? Ok(result.Value) 
+            : NotFound();
     }
 
     [HttpPost]
-    public async Task<IResult> PostAsync([FromBody] ApartmentRequest request, CancellationToken cancellationToken)
+    public async Task<ActionResult> PostAsync([FromBody] ApartmentRequest request, CancellationToken cancellationToken)
     {
-        var dto = new CreateApartmentDto
+        var dto = new CreateApartmentCommand
         {
             Name = request.Name,
-            Address = new CreateApartmentAddressDto()
+            Address = new ApartmentAddressDto
             {
                 Street = request.Street,
                 City = request.City,
                 State = request.State,
                 ZipCode = request.ZipCode,
                 BuildingNo = request.BuildingNumber,
-                FlatNumber = request.FlatNumber,
+                FlatNumber = request.FlatNumber
             }
         };
         
-        var result = await apartmentService.CreateApartment(dto, cancellationToken);
+        var result = await apartmentService.CreateAsync(dto, cancellationToken);
 
         return result.IsSuccess 
-            ? Results.CreatedAtRoute(nameof(GetAsync), new { id = result.Value }) 
-            : Results.BadRequest(result.Errors);
+            ? CreatedAtRoute(nameof(GetAsync), routeValues: new { id = result.Value }, value: null) 
+            : BadRequest(result.Errors);
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<IResult> PutAsync(Guid id, [FromBody] UpdateApartmentRequest request, CancellationToken cancellationToken)
+    public async Task<ActionResult> PutAsync(Guid id, [FromBody] UpdateApartmentRequest request, CancellationToken cancellationToken)
     {
-        var dto = new UpdateApartmentDto
+        var dto = new UpdateApartmentCommand
         {
             Id = id,
             Name = request.Name
@@ -66,15 +66,15 @@ public class ApartmentsController(IApartmentService apartmentService)
         var result = await apartmentService.UpdateApartment(dto, cancellationToken);
             
         return result.IsSuccess 
-            ? Results.NoContent() 
-            : Results.NotFound(result.Errors);
+            ? NoContent() 
+            : NotFound();
     }
 
     [HttpDelete("{id:guid}")]
-    public async Task<IResult> DeleteAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<ActionResult> DeleteAsync(Guid id, CancellationToken cancellationToken)
     {
         await apartmentService.DeleteAsync(id, cancellationToken);
             
-        return Results.NoContent();
+        return NoContent();
     }
 }

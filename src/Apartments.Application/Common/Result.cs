@@ -1,6 +1,4 @@
-﻿using Apartments.Domain.Services.Apartments.Dtos;
-
-namespace Apartments.Domain;
+﻿namespace Apartments.Application.Common;
 
 public class Result
 {

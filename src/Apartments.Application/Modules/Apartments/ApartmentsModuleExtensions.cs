@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace Apartments.Application.Apartments;
+namespace Apartments.Application.Modules.Apartments;
 
 public static class ApartmentsModuleExtensions
 {

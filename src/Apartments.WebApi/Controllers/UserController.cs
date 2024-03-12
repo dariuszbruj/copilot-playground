@@ -1,7 +1,7 @@
-using Apartments.Domain.Services;
-using Apartments.Domain.Services.AccountServices;
-using Apartments.Domain.Services.AccountServices.Dtos;
-using Apartments.Domain.Services.AccountServices.Models;
+using Apartments.Application.Modules.AccountServices;
+using Apartments.Application.Modules.AccountServices.Dtos;
+using Apartments.Application.Modules.AccountServices.Models;
+using Apartments.Application.Modules.Tokens;
 using Apartments.WebApi.Requests;
 using Apartments.WebApi.Response;
 using Microsoft.AspNetCore.Mvc;
@@ -16,7 +16,7 @@ public class UserController(IAccountService accountService, ITokenGenerator toke
     [HttpPost("login")]
     public async Task<ActionResult<LoginResponse>> LoginAsync(LoginRequest request, CancellationToken cancellationToken = default)
     {
-        var loginRequest = new LoginRequestDto(
+        var loginRequest = new LoginRequestCommand(
             new UserName(request.UserName),
             new Password(request.Password),
             new LockoutOnFailure(true));
@@ -38,7 +38,7 @@ public class UserController(IAccountService accountService, ITokenGenerator toke
     [HttpPost("register")]
     public async Task<ActionResult> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken = default)
     {
-        var createRequest = new CreateRequestDto(
+        var createRequest = new CreateRequestCommand(
             new UserName(request.UserName),
             new Password(request.Password));
 

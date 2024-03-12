@@ -1,13 +1,13 @@
-﻿namespace Apartments.Domain.Services.Apartments.Dtos;
+﻿namespace Apartments.Application.Modules.Apartments.Dtos;
 
-public record CreateApartmentDto
+public record CreateApartmentCommand
 {
     public required string Name { get; init; } = string.Empty;
     
-    public required CreateApartmentAddressDto Address { get; init; }
+    public required ApartmentAddressDto Address { get; init; }
 }
 
-public record CreateApartmentAddressDto
+public record ApartmentAddressDto
 {
     public string Street { get; set; } = string.Empty;
     public string BuildingNo { get; set; } = string.Empty;

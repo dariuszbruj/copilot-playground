@@ -1,9 +1,8 @@
-using Apartments.Domain;
+using Apartments.Application.Common;
+using Apartments.Application.Modules.Apartments.Dtos;
 using Apartments.Domain.Models;
-using Apartments.Domain.Services.Apartments;
-using Apartments.Domain.Services.Apartments.Dtos;
 
-namespace Apartments.Application.Apartments;
+namespace Apartments.Application.Modules.Apartments;
 
 public class ApartmentService(IApartmentRepository apartmentRepository)
     : IApartmentService
@@ -11,20 +10,20 @@ public class ApartmentService(IApartmentRepository apartmentRepository)
     private readonly IApartmentRepository _apartmentRepository = apartmentRepository
         ?? throw new ArgumentNullException(nameof(apartmentRepository));
 
-    public async Task<Result<Guid>> CreateApartment(CreateApartmentDto createApartmentDto,
+    public async Task<Result<Guid>> CreateAsync(CreateApartmentCommand createApartmentCommand,
         CancellationToken cancellationToken  = default)
     {
         var apartment = new Apartment
         {
-            Name = createApartmentDto.Name,
-            Address = new Address()
+            Name = createApartmentCommand.Name,
+            Address = new Address
             {
-                Street = createApartmentDto.Address.Street,
-                City = createApartmentDto.Address.City,
-                State = createApartmentDto.Address.State,
-                ZipCode = createApartmentDto.Address.ZipCode,
-                BuildingNo = createApartmentDto.Address.BuildingNo,
-                FlatNumber = createApartmentDto.Address.FlatNumber
+                Street = createApartmentCommand.Address.Street,
+                City = createApartmentCommand.Address.City,
+                State = createApartmentCommand.Address.State,
+                ZipCode = createApartmentCommand.Address.ZipCode,
+                BuildingNo = createApartmentCommand.Address.BuildingNo,
+                FlatNumber = createApartmentCommand.Address.FlatNumber
             }
         };
         
@@ -40,27 +39,27 @@ public class ApartmentService(IApartmentRepository apartmentRepository)
             .GetApartmentsAsync( cancellationToken);
         
         return Result<IEnumerable<ApartmentDto>>
-            .Ok(apartments.Select(x => new ApartmentDto() { Id = x.Id, Name = x.Name }));
+            .Ok(apartments.Select(x => new ApartmentDto { Id = x.Id, Name = x.Name }));
     }
     
     public async Task<Result<ApartmentDto>> GetAsync(Guid id, 
         CancellationToken cancellationToken = default)
     {
         var apartment = await _apartmentRepository
-            .GetApartmentByIdAsync(id, cancellationToken);
+            .GetByIdAsync(id, cancellationToken);
         
-        return Result<ApartmentDto>.Ok(new ApartmentDto() { Id = apartment.Id, Name = apartment.Name });
+        return Result<ApartmentDto>.Ok(new ApartmentDto { Id = apartment.Id, Name = apartment.Name });
     }
 
-    public async Task<Result> UpdateApartment(UpdateApartmentDto dto, 
+    public async Task<Result> UpdateApartment(UpdateApartmentCommand command, 
         CancellationToken cancellationToken = default)
     {
         var apartment = await _apartmentRepository
-            .GetApartmentByIdAsync(dto.Id, cancellationToken);
+            .GetByIdAsync(command.Id, cancellationToken);
         
-        if (dto.Name is not null)
+        if (command.Name is not null)
         {
-            apartment.Name = dto.Name;
+            apartment.Name = command.Name;
         }
         
         await _apartmentRepository.UpdateAsync(apartment, cancellationToken);

@@ -1,4 +1,4 @@
-namespace Apartments.Domain.Services.AccountServices.Models;
+namespace Apartments.Application.Modules.AccountServices.Models;
 
 public readonly record struct Password(string Value)
 {

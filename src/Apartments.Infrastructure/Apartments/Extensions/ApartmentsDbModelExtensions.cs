@@ -1,6 +1,5 @@
-using Apartments.Domain;
+using Apartments.Application.Modules.Apartments;
 using Apartments.Domain.Models;
-using Apartments.Domain.Services.Apartments;
 using Apartments.Infrastructure.Apartments.Models;
 using Apartments.Infrastructure.Apartments.Repositories;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,7 +15,7 @@ public static class ApartmentsDbModelExtensions
             Id = dbModel.Guid,
             Name = dbModel.Name,
             Address = dbModel.Address is not null 
-                ? new Address()
+                ? new Address
                     {
                         BuildingNo = dbModel.Address.BuildingNumber,
                         FlatNumber = dbModel.Address.FlatNumber,
@@ -36,7 +35,7 @@ public static class ApartmentsDbModelExtensions
         {
             Guid = domainModel.Id,
             Name = domainModel.Name,
-            Address = new ApartmentAddressDbModel()
+            Address = new ApartmentAddressDbModel
             {
                 BuildingNumber = domainModel.Address.BuildingNo,
                 FlatNumber = domainModel.Address.FlatNumber,
