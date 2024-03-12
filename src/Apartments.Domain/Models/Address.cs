@@ -2,7 +2,7 @@ namespace Apartments.Domain.Models;
 
 public record Address
 {
-    public static Address Empty = new Address();
+    public static readonly Address Empty = new();
     
     public string Street { get; set; } = string.Empty;
     public string BuildingNo { get; set; } = string.Empty;

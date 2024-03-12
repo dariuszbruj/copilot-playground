@@ -1,4 +1,4 @@
-﻿using Apartments.Application.Apartments;
+﻿using Apartments.Application.Modules.Apartments;
 using Apartments.Infrastructure.Apartments.Extensions;
 
 namespace Apartments.WebApi.Extensions;

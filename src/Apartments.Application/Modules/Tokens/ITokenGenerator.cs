@@ -1,4 +1,4 @@
-﻿namespace Apartments.Domain.Services;
+﻿namespace Apartments.Application.Modules.Tokens;
 
 public interface ITokenGenerator
 {

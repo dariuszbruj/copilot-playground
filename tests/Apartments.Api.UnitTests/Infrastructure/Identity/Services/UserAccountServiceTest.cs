@@ -1,6 +1,7 @@
+using Apartments.Application.Common;
+using Apartments.Application.Modules.AccountServices.Dtos;
+using Apartments.Application.Modules.AccountServices.Models;
 using Apartments.Domain;
-using Apartments.Domain.Services.AccountServices.Dtos;
-using Apartments.Domain.Services.AccountServices.Models;
 using Apartments.Infrastructure.Identity.Models;
 using Apartments.Infrastructure.Identity.Services;
 using FakeItEasy;
@@ -18,7 +19,7 @@ namespace Apartment.Api.UnitTests.Infrastructure.Identity.Services
             var signInManagerFake = A.Fake<SignInManager<User>>();
             var accountService = new AccountService(userManagerFake, signInManagerFake);
 
-            var requestDto = new CreateRequestDto(new UserName("testuser"), new Password("testpassword"));
+            var requestDto = new CreateRequestCommand(new UserName("testuser"), new Password("testpassword"));
 
             A.CallTo(() => userManagerFake.CreateAsync(A<User>._, A<string>._))
                 .Returns(IdentityResult.Success);
@@ -39,7 +40,7 @@ namespace Apartment.Api.UnitTests.Infrastructure.Identity.Services
             var signInManagerFake = A.Fake<SignInManager<User>>();
             var accountService = new AccountService(userManagerFake, signInManagerFake);
 
-            var requestDto = new CreateRequestDto(new UserName("testuser"), new Password("testpassword"));
+            var requestDto = new CreateRequestCommand(new UserName("testuser"), new Password("testpassword"));
 
             var identityErrors = new[]
             {
@@ -67,7 +68,7 @@ namespace Apartment.Api.UnitTests.Infrastructure.Identity.Services
             var signInManagerFake = A.Fake<SignInManager<User>>();
             var accountService = new AccountService(userManagerFake, signInManagerFake);
 
-            var requestDto = new LoginRequestDto(new UserName("testuser"), new Password("testpassword"),
+            var requestDto = new LoginRequestCommand(new UserName("testuser"), new Password("testpassword"),
                 new LockoutOnFailure(true));
 
             A.CallTo(() => userManagerFake.FindByNameAsync(A<string>._))
@@ -90,7 +91,7 @@ namespace Apartment.Api.UnitTests.Infrastructure.Identity.Services
             var signInManagerFake = A.Fake<SignInManager<User>>();
             var accountService = new AccountService(userManagerFake, signInManagerFake);
 
-            var requestDto = new LoginRequestDto(new UserName("testuser"), new Password("testpassword"),
+            var requestDto = new LoginRequestCommand(new UserName("testuser"), new Password("testpassword"),
                 new LockoutOnFailure(true));
 
             var user = new User { UserName = "testuser" };
@@ -117,7 +118,7 @@ namespace Apartment.Api.UnitTests.Infrastructure.Identity.Services
             var signInManagerFake = A.Fake<SignInManager<User>>();
             var accountService = new AccountService(userManagerFake, signInManagerFake);
 
-            var requestDto = new LoginRequestDto(new UserName("testuser"), new Password("testpassword"),
+            var requestDto = new LoginRequestCommand(new UserName("testuser"), new Password("testpassword"),
                 new LockoutOnFailure(true));
 
             var user = new User { UserName = "testuser" };
@@ -145,7 +146,7 @@ namespace Apartment.Api.UnitTests.Infrastructure.Identity.Services
             var signInManagerFake = A.Fake<SignInManager<User>>();
             var accountService = new AccountService(userManagerFake, signInManagerFake);
 
-            var requestDto = new LoginRequestDto(new UserName("testuser"), new Password("testpassword"),
+            var requestDto = new LoginRequestCommand(new UserName("testuser"), new Password("testpassword"),
                 new LockoutOnFailure(true));
 
             var user = new User { UserName = "testuser" };

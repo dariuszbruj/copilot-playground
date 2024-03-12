@@ -1,4 +1,4 @@
-﻿namespace Apartments.Domain.Services.Apartments.Dtos;
+﻿namespace Apartments.Application.Modules.Apartments.Dtos;
 
 public record struct ApartmentDto
 {

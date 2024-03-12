@@ -1,6 +1,6 @@
 ﻿using Apartments.Domain.Models;
 
-namespace Apartments.Domain.Services.Apartments.Results;
+namespace Apartments.Application.Modules.Apartments.Results;
 
 public abstract record ApartmentResult
 {

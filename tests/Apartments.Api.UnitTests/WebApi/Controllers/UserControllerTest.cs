@@ -1,7 +1,7 @@
-using Apartments.Domain;
-using Apartments.Domain.Services;
-using Apartments.Domain.Services.AccountServices;
-using Apartments.Domain.Services.AccountServices.Dtos;
+using Apartments.Application.Common;
+using Apartments.Application.Modules.AccountServices;
+using Apartments.Application.Modules.AccountServices.Dtos;
+using Apartments.Application.Modules.Tokens;
 using Apartments.WebApi.Controllers;
 using Apartments.WebApi.Requests;
 using Apartments.WebApi.Response;
@@ -26,7 +26,7 @@ public class UserControllerTests
         var user = new IdentityUser { UserName = username };
         var request = new RegisterRequest { UserName = username, Password = password };
 
-        A.CallTo(() => accountServiceFake.CreateAsync(A<CreateRequestDto>._, A<CancellationToken>._))
+        A.CallTo(() => accountServiceFake.CreateAsync(A<CreateRequestCommand>._, A<CancellationToken>._))
             .Returns(Result.Ok());
 
         // Act
@@ -35,7 +35,7 @@ public class UserControllerTests
         // Assert
         Assert.IsType<OkResult>(response);
         A.CallTo(() => accountServiceFake.CreateAsync(
-            A<CreateRequestDto>.That.Matches(u => u.UserName == user.UserName && u.Password == password), A<CancellationToken>._))
+            A<CreateRequestCommand>.That.Matches(u => u.UserName == user.UserName && u.Password == password), A<CancellationToken>._))
             .MustHaveHappenedOnceExactly();
     }
 
@@ -54,7 +54,7 @@ public class UserControllerTests
         var errors = new[] { "Error description" };
         var result = Result.Fail(errors);
 
-        A.CallTo(() => accountServiceFake.CreateAsync(A<CreateRequestDto>._, A<CancellationToken>._))
+        A.CallTo(() => accountServiceFake.CreateAsync(A<CreateRequestCommand>._, A<CancellationToken>._))
             .Returns(result);
 
         // Act
@@ -77,7 +77,7 @@ public class UserControllerTests
         const string password = "testpassword";
         var request = new RegisterRequest { UserName = username, Password = password };
 
-        A.CallTo(() => accountServiceFake.CreateAsync(A<CreateRequestDto>._, A<CancellationToken>._))
+        A.CallTo(() => accountServiceFake.CreateAsync(A<CreateRequestCommand>._, A<CancellationToken>._))
             .Returns(Result.Fail([]));
 
         // Act
@@ -86,7 +86,7 @@ public class UserControllerTests
         // Assert
         Assert.IsType<BadRequestObjectResult>(response);
         A.CallTo(() => accountServiceFake.CreateAsync(
-            A<CreateRequestDto>.That.Matches(u => u.UserName == username && u.Password == password), A<CancellationToken>._))
+            A<CreateRequestCommand>.That.Matches(u => u.UserName == username && u.Password == password), A<CancellationToken>._))
             .MustHaveHappenedOnceExactly();
     }
 
@@ -102,7 +102,7 @@ public class UserControllerTests
         const string password = "testpassword";
         var request = new LoginRequest { UserName = username, Password = password };
 
-        A.CallTo(() => accountServiceFake.LoginAsync(A<LoginRequestDto>._, A<CancellationToken>._))
+        A.CallTo(() => accountServiceFake.LoginAsync(A<LoginRequestCommand>._, A<CancellationToken>._))
             .Returns(Result.Ok());
 
         // Act
@@ -125,7 +125,7 @@ public class UserControllerTests
         const string password = "testpassword";
         var request = new LoginRequest { UserName = username, Password = password };
 
-        A.CallTo(() => accountServiceFake.LoginAsync(A<LoginRequestDto>._, A<CancellationToken>._))
+        A.CallTo(() => accountServiceFake.LoginAsync(A<LoginRequestCommand>._, A<CancellationToken>._))
             .Returns(Result.Ok());
 
         var expectedToken = "generated-jwt-token";
@@ -154,7 +154,7 @@ public class UserControllerTests
         const string password = "testpassword";
         var request = new LoginRequest { UserName = username, Password = password };
 
-        A.CallTo(() => accountServiceFake.LoginAsync(A<LoginRequestDto>._, A<CancellationToken>._))
+        A.CallTo(() => accountServiceFake.LoginAsync(A<LoginRequestCommand>._, A<CancellationToken>._))
             .Returns(Result.Fail([ "UserNotFound" ]));
 
         // Act
@@ -177,7 +177,7 @@ public class UserControllerTests
         const string password = "testpassword";
         var request = new LoginRequest { UserName = username, Password = password };
 
-        A.CallTo(() => accountServiceFake.LoginAsync(A<LoginRequestDto>._, A<CancellationToken>._))
+        A.CallTo(() => accountServiceFake.LoginAsync(A<LoginRequestCommand>._, A<CancellationToken>._))
             .Returns(Result.Fail([ "InvalidPassword" ]));
 
         // Act

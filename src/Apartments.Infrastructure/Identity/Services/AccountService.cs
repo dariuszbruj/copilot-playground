@@ -1,6 +1,6 @@
-using Apartments.Domain;
-using Apartments.Domain.Services.AccountServices;
-using Apartments.Domain.Services.AccountServices.Dtos;
+using Apartments.Application.Common;
+using Apartments.Application.Modules.AccountServices;
+using Apartments.Application.Modules.AccountServices.Dtos;
 using Apartments.Infrastructure.Identity.Models;
 using Microsoft.AspNetCore.Identity;
 
@@ -9,23 +9,23 @@ namespace Apartments.Infrastructure.Identity.Services;
 public class AccountService(UserManager<User> userManager, SignInManager<User> signInManager) 
     : IAccountService
 {
-    public async Task<Result> CreateAsync(CreateRequestDto requestDto, CancellationToken cancellationToken = default)
+    public async Task<Result> CreateAsync(CreateRequestCommand requestCommand, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
         
-        var applicationUser = new User { UserName = requestDto.UserName, Email = requestDto.UserName };
-        var identityResult = await userManager.CreateAsync(applicationUser, requestDto.Password);
+        var applicationUser = new User { UserName = requestCommand.UserName, Email = requestCommand.UserName };
+        var identityResult = await userManager.CreateAsync(applicationUser, requestCommand.Password);
 
         return identityResult.Succeeded
             ? Result.Ok()
             : Result.Fail(identityResult.Errors.Select(e => e.Description));
     }
 
-    public async Task<Result> LoginAsync(LoginRequestDto requestDto, CancellationToken cancellationToken = default)
+    public async Task<Result> LoginAsync(LoginRequestCommand requestCommand, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
         
-        var user = await userManager.FindByNameAsync(requestDto.UserName);
+        var user = await userManager.FindByNameAsync(requestCommand.UserName);
 
         if (user == null)
         {
@@ -33,7 +33,7 @@ public class AccountService(UserManager<User> userManager, SignInManager<User> s
         }
 
         var signInResult = await signInManager
-            .CheckPasswordSignInAsync(user, requestDto.Password, requestDto.LockoutOnFailure);
+            .CheckPasswordSignInAsync(user, requestCommand.Password, requestCommand.LockoutOnFailure);
 
         return signInResult.Succeeded
             ? Result.Ok()

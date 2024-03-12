@@ -1,10 +1,11 @@
+using Apartments.Application.Common;
+using Apartments.Application.Modules.Apartments;
+using Apartments.Application.Modules.Apartments.Dtos;
 using Apartments.Domain;
-using Apartments.Domain.Services.Apartments;
-using Apartments.Domain.Services.Apartments.Dtos;
 using Apartments.WebApi.Controllers;
 using Apartments.WebApi.Requests;
 using FakeItEasy;
-using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Apartment.Api.UnitTests.WebApi.Controllers
 {
@@ -30,9 +31,16 @@ namespace Apartment.Api.UnitTests.WebApi.Controllers
             var response = await controller.GetAsync(CancellationToken.None);
 
             // Assert
-            var okResult = Assert.IsType<Ok<IEnumerable<ApartmentDto>>>(response);
-            var resultValue = Assert.IsAssignableFrom<IEnumerable<ApartmentDto>>(okResult.Value);
-            Assert.Equal(apartments, resultValue);
+            var result = Assert.IsType<ActionResult<IEnumerable<ApartmentDto>>>(response);
+            var okResult = Assert.IsType<OkObjectResult>(result.Result);
+            var returnValue = Assert.IsType<List<ApartmentDto>>(okResult.Value);
+
+            Assert.Equal(apartments.Count, returnValue.Count);
+            for (var i = 0; i < apartments.Count; i++)
+            {
+                Assert.Equal(apartments[i].Id, returnValue[i].Id);
+                Assert.Equal(apartments[i].Name, returnValue[i].Name);
+            }  
         }
 
         [Fact]
@@ -49,7 +57,9 @@ namespace Apartment.Api.UnitTests.WebApi.Controllers
             var response = await controller.GetAsync(CancellationToken.None);
 
             // Assert
-            Assert.IsType<NotFound<IEnumerable<string>>>(response);
+            var result = Assert.IsType<ActionResult<IEnumerable<ApartmentDto>>>(response);
+            Assert.IsType<NotFoundResult>(result.Result);
+            Assert.Null(result.Value);
         }
 
         [Fact]
@@ -69,9 +79,9 @@ namespace Apartment.Api.UnitTests.WebApi.Controllers
             var response = await controller.GetAsync(apartmentId, CancellationToken.None);
 
             // Assert
-            var okResult = Assert.IsType<Ok<ApartmentDto>>(response);
-            var resultValue = Assert.IsType<ApartmentDto>(okResult.Value);
-            Assert.Equal(apartment, resultValue);
+            var result = Assert.IsType<ActionResult<ApartmentDto>>(response);
+            var okResult = Assert.IsType<OkObjectResult>(result.Result);
+            Assert.Equal(apartment, okResult.Value);
         }
 
         [Fact]
@@ -90,7 +100,9 @@ namespace Apartment.Api.UnitTests.WebApi.Controllers
             var response = await controller.GetAsync(apartmentId, CancellationToken.None);
 
             // Assert
-            Assert.IsType<NotFound<IEnumerable<string>>>(response);
+            var result = Assert.IsType<ActionResult<ApartmentDto>>(response);
+            Assert.IsType<NotFoundResult>(result.Result);
+            Assert.Equal(default, response.Value);
         }
 
         [Fact]
@@ -102,19 +114,20 @@ namespace Apartment.Api.UnitTests.WebApi.Controllers
 
             var apartmentId = Guid.NewGuid();
             var request = new ApartmentRequest { Name = "Apartment 1" };
-            var dto = new CreateApartmentDto { Name = request.Name, Address = new CreateApartmentAddressDto() };
+            var dto = new CreateApartmentCommand { Name = request.Name, Address = new ApartmentAddressDto() };
 
-            A.CallTo(() => apartmentServiceFake.CreateApartment(dto, A<CancellationToken>._))
+            A.CallTo(() => apartmentServiceFake.CreateAsync(dto, A<CancellationToken>._))
                 .Returns(Result<Guid>.Ok(apartmentId));
 
             // Act
             var response = await controller.PostAsync(request, CancellationToken.None);
 
             // Assert
-            var createdAtActionResult = Assert.IsType<CreatedAtRoute>(response);
+            var createdAtActionResult = Assert.IsType<CreatedAtRouteResult>(response);
             Assert.Equal(nameof(controller.GetAsync), createdAtActionResult.RouteName);
-            Assert.Equal(apartmentId, createdAtActionResult.RouteValues["id"]);
-            //Assert.Null(createdAtActionResult.Value);
+            Assert.NotNull(createdAtActionResult);
+            Assert.Equal(apartmentId, createdAtActionResult.RouteValues?["id"]);
+            Assert.Null(createdAtActionResult.Value);
         }
 
         [Fact]
@@ -125,19 +138,19 @@ namespace Apartment.Api.UnitTests.WebApi.Controllers
             var controller = new ApartmentsController(apartmentServiceFake);
 
             var request = new ApartmentRequest { Name = "Apartment 1" };
-            var dto = new CreateApartmentDto { Name = request.Name, Address = new CreateApartmentAddressDto()  };
+            var dto = new CreateApartmentCommand { Name = request.Name, Address = new ApartmentAddressDto()  };
 
             var errors = new[] { "Error description" };
             var result = Result<Guid>.Fail(errors);
 
-            A.CallTo(() => apartmentServiceFake.CreateApartment(dto, A<CancellationToken>._))
+            A.CallTo(() => apartmentServiceFake.CreateAsync(dto, A<CancellationToken>._))
                 .Returns(result);
 
             // Act
             var response = await controller.PostAsync(request, CancellationToken.None);
 
             // Assert
-            var badRequestResult = Assert.IsType<BadRequest<IEnumerable<string>>>(response);
+            var badRequestResult = Assert.IsType<BadRequestObjectResult>(response);
             Assert.Equal(result.Errors, badRequestResult.Value);
         }
 
@@ -150,7 +163,7 @@ namespace Apartment.Api.UnitTests.WebApi.Controllers
 
             var apartmentId = Guid.NewGuid();
             var request = new UpdateApartmentRequest { Name = "Updated Apartment" };
-            var dto = new UpdateApartmentDto { Id = apartmentId, Name = request.Name };
+            var dto = new UpdateApartmentCommand { Id = apartmentId, Name = request.Name };
 
             A.CallTo(() => apartmentServiceFake.UpdateApartment(dto, A<CancellationToken>._))
                 .Returns(Result.Ok());
@@ -159,7 +172,7 @@ namespace Apartment.Api.UnitTests.WebApi.Controllers
             var response = await controller.PutAsync(apartmentId, request, CancellationToken.None);
 
             // Assert
-            Assert.IsType<NoContent>(response);
+            Assert.IsType<NoContentResult>(response);
         }
 
         [Fact]
@@ -171,7 +184,7 @@ namespace Apartment.Api.UnitTests.WebApi.Controllers
 
             var apartmentId = Guid.NewGuid();
             var request = new UpdateApartmentRequest { Name = "Updated Apartment" };
-            var dto = new UpdateApartmentDto { Id = apartmentId, Name = request.Name };
+            var dto = new UpdateApartmentCommand { Id = apartmentId, Name = request.Name };
 
             A.CallTo(() => apartmentServiceFake.UpdateApartment(dto, A<CancellationToken>._))
                 .Returns(Result.Fail(["NotFound"]));
@@ -180,7 +193,7 @@ namespace Apartment.Api.UnitTests.WebApi.Controllers
             var response = await controller.PutAsync(apartmentId, request, CancellationToken.None);
 
             // Assert
-            Assert.IsType<NotFound<IEnumerable<string>>>(response);
+            Assert.IsType<NotFoundResult>(response);
         }
 
         [Fact]
@@ -196,7 +209,7 @@ namespace Apartment.Api.UnitTests.WebApi.Controllers
             var response = await controller.DeleteAsync(apartmentId, CancellationToken.None);
 
             // Assert
-            Assert.IsType<NoContent>(response);
+            Assert.IsType<NoContentResult>(response);
             A.CallTo(() => apartmentServiceFake.DeleteAsync(apartmentId, A<CancellationToken>._))
                 .MustHaveHappenedOnceExactly();
         }
