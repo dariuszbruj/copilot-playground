@@ -1,62 +1,35 @@
 'use server'
 
 import React from 'react';
-import { Table } from 'antd';
+import ApartmentsTableClientComponent from './_components/client/ApartmentsTableClientComponent';
 
-async function renderTags(address : any): Promise<React.JSX.Element> {
-  "use server";
-
+async function HomePage() : Promise<React.JSX.Element> {
+  const apartments : Apartment[] = await getData();
+  
   return (
     <>
-        <div>Street: {address.street}</div>
-        <div>Building No: {address.buildingNo}</div>
-        <div>Flat Number: {address.flatNumber}</div>
-        <div>City: {address.city}</div>
-        <div>State: {address.state}</div>
-        <div>Zip Code: {address.zipCode}</div>
+      <ApartmentsTableClientComponent apartments={apartments} />
     </>
-  );
-}
-
-async function HomePage() {
-  const apartments = await getData()
-
-  const columns = [
-    {
-      title: 'ID',
-      dataIndex: 'id',
-      key: 'id',
-    },
-    {
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name'
-    },
-    {
-      title: 'Address',
-      dataIndex: 'address',
-      key: 'address',
-      render: renderTags,
-    },
-  ];
-
-  return (
-    <div>
-      <h1>Apartment Listings</h1>
-      <Table columns={columns} dataSource={apartments} rowKey="id" />
-    </div>
   );
 };
 
-async function getData() {
-  const res = await fetch('http://localhost:5000/apartments')
+async function getData() : Promise<Apartment[]> {
+    
+    try {
 
-  if (!res.ok) {
-    // This will activate the closest `error.js` Error Boundary
-    throw new Error('Failed to fetch data')
-  }
+        const res = await fetch('http://localhost:5000/apartments')
 
-  return res.json()
+        if (!res.ok) {
+            // This will activate the closest `error.js` Error Boundary
+            throw new Error('Failed to fetch data')
+        }
+
+        return res.json()
+    } 
+    catch (error) 
+    {
+        return [];
+    }
 }
 
 export default HomePage;

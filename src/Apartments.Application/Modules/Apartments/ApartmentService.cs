@@ -39,7 +39,19 @@ public class ApartmentService(IApartmentRepository apartmentRepository)
             .GetApartmentsAsync( cancellationToken);
         
         return Result<IEnumerable<ApartmentDto>>
-            .Ok(apartments.Select(x => new ApartmentDto { Id = x.Id, Name = x.Name }));
+            .Ok(apartments.Select(apartment => new ApartmentDto { 
+                Id = apartment.Id, 
+                Name = apartment.Name, 
+                Address = new ApartmentAddressDto
+                {
+                    Street = apartment.Address.Street,
+                    City = apartment.Address.City,
+                    State = apartment.Address.State,
+                    ZipCode = apartment.Address.ZipCode,
+                    BuildingNo = apartment.Address.BuildingNo,
+                    FlatNumber = apartment.Address.FlatNumber
+                } 
+            }));
     }
     
     public async Task<Result<ApartmentDto>> GetAsync(Guid id, 
@@ -48,7 +60,21 @@ public class ApartmentService(IApartmentRepository apartmentRepository)
         var apartment = await _apartmentRepository
             .GetByIdAsync(id, cancellationToken);
         
-        return Result<ApartmentDto>.Ok(new ApartmentDto { Id = apartment.Id, Name = apartment.Name });
+        return Result<ApartmentDto>.Ok(
+            new ApartmentDto
+            {
+                Id = apartment.Id, 
+                Name = apartment.Name,
+                Address = new ApartmentAddressDto
+                {
+                    Street = apartment.Address.Street,
+                    City = apartment.Address.City,
+                    State = apartment.Address.State,
+                    ZipCode = apartment.Address.ZipCode,
+                    BuildingNo = apartment.Address.BuildingNo,
+                    FlatNumber = apartment.Address.FlatNumber
+                }
+            });
     }
 
     public async Task<Result> UpdateApartment(UpdateApartmentCommand command, 

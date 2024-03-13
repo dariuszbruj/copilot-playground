@@ -60,7 +60,7 @@ public class ApartmentServiceTests
     public async Task CanCreateApartment()
     {
         // Arrange
-        var request = new CreateApartmentCommand { Name = "Some New Apartment Name", Address = new ApartmentAddressDto() };
+        var request = new CreateApartmentCommand { Name = "Some New Apartment Name", Address = new CreateApartmentAddressDto() };
         
         // Act
         var result = await _apartmentService.CreateAsync(request);

@@ -6,7 +6,7 @@ public static class ApartmentsModuleExtensions
 {
     public static IServiceCollection AddApartmentsApplicationServices(this IServiceCollection services)
     {
-        services.AddScoped<ApartmentService>();
+        services.AddScoped<IApartmentService, ApartmentService>();
 
         return services;
     }

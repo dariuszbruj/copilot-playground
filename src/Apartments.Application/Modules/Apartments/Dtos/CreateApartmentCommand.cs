@@ -4,10 +4,10 @@ public record CreateApartmentCommand
 {
     public required string Name { get; init; } = string.Empty;
     
-    public required ApartmentAddressDto Address { get; init; }
+    public required CreateApartmentAddressDto Address { get; init; }
 }
 
-public record ApartmentAddressDto
+public record CreateApartmentAddressDto
 {
     public string Street { get; set; } = string.Empty;
     public string BuildingNo { get; set; } = string.Empty;
