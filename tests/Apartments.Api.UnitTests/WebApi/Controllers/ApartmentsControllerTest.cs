@@ -114,7 +114,7 @@ namespace Apartment.Api.UnitTests.WebApi.Controllers
 
             var apartmentId = Guid.NewGuid();
             var request = new ApartmentRequest { Name = "Apartment 1" };
-            var dto = new CreateApartmentCommand { Name = request.Name, Address = new ApartmentAddressDto() };
+            var dto = new CreateApartmentCommand { Name = request.Name, Address = new CreateApartmentAddressDto() };
 
             A.CallTo(() => apartmentServiceFake.CreateAsync(dto, A<CancellationToken>._))
                 .Returns(Result<Guid>.Ok(apartmentId));
@@ -138,7 +138,7 @@ namespace Apartment.Api.UnitTests.WebApi.Controllers
             var controller = new ApartmentsController(apartmentServiceFake);
 
             var request = new ApartmentRequest { Name = "Apartment 1" };
-            var dto = new CreateApartmentCommand { Name = request.Name, Address = new ApartmentAddressDto()  };
+            var dto = new CreateApartmentCommand { Name = request.Name, Address = new CreateApartmentAddressDto()  };
 
             var errors = new[] { "Error description" };
             var result = Result<Guid>.Fail(errors);

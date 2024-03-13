@@ -36,7 +36,7 @@ public class ApartmentsController(IApartmentService apartmentService)
         var dto = new CreateApartmentCommand
         {
             Name = request.Name,
-            Address = new ApartmentAddressDto
+            Address = new CreateApartmentAddressDto
             {
                 Street = request.Street,
                 City = request.City,
