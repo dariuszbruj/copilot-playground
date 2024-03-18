@@ -128,7 +128,7 @@ public class UserControllerTests
         A.CallTo(() => accountServiceFake.LoginAsync(A<LoginRequestCommand>._, A<CancellationToken>._))
             .Returns(Result.Ok());
 
-        var expectedToken = "generated-jwt-token";
+        const string expectedToken = "generated-jwt-token";
         A.CallTo(() => tokenGeneratorFake.GenerateToken(username))
             .Returns(expectedToken);
 

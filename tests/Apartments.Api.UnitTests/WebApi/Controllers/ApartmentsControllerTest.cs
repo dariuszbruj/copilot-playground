@@ -1,217 +1,215 @@
 using Apartments.Application.Common;
 using Apartments.Application.Modules.Apartments;
 using Apartments.Application.Modules.Apartments.Dtos;
-using Apartments.Domain;
 using Apartments.WebApi.Controllers;
 using Apartments.WebApi.Requests;
 using FakeItEasy;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Apartment.Api.UnitTests.WebApi.Controllers
+namespace Apartment.Api.UnitTests.WebApi.Controllers;
+
+public class ApartmentsControllerTests
 {
-    public class ApartmentsControllerTests
+    [Fact]
+    public async Task GetAsync_ShouldReturnOkResult_WhenApartmentsExist()
     {
-        [Fact]
-        public async Task GetAsync_ShouldReturnOkResult_WhenApartmentsExist()
+        // Arrange
+        var apartmentServiceFake = A.Fake<IApartmentService>();
+        var controller = new ApartmentsController(apartmentServiceFake);
+
+        var apartments = new List<ApartmentDto>
         {
-            // Arrange
-            var apartmentServiceFake = A.Fake<IApartmentService>();
-            var controller = new ApartmentsController(apartmentServiceFake);
+            new () { Id = Guid.NewGuid(), Name = "Apartment 1" },
+            new () { Id = Guid.NewGuid(), Name = "Apartment 2" }
+        };
 
-            var apartments = new List<ApartmentDto>
-            {
-                new () { Id = Guid.NewGuid(), Name = "Apartment 1" },
-                new () { Id = Guid.NewGuid(), Name = "Apartment 2" }
-            };
+        A.CallTo(() => apartmentServiceFake.GetAsync(A<CancellationToken>._))
+            .Returns(Result<IEnumerable<ApartmentDto>>.Ok(apartments));
 
-            A.CallTo(() => apartmentServiceFake.GetAsync(A<CancellationToken>._))
-                .Returns(Result<IEnumerable<ApartmentDto>>.Ok(apartments));
+        // Act
+        var response = await controller.GetAsync(CancellationToken.None);
 
-            // Act
-            var response = await controller.GetAsync(CancellationToken.None);
+        // Assert
+        var result = Assert.IsType<ActionResult<IEnumerable<ApartmentDto>>>(response);
+        var okResult = Assert.IsType<OkObjectResult>(result.Result);
+        var returnValue = Assert.IsType<List<ApartmentDto>>(okResult.Value);
 
-            // Assert
-            var result = Assert.IsType<ActionResult<IEnumerable<ApartmentDto>>>(response);
-            var okResult = Assert.IsType<OkObjectResult>(result.Result);
-            var returnValue = Assert.IsType<List<ApartmentDto>>(okResult.Value);
-
-            Assert.Equal(apartments.Count, returnValue.Count);
-            for (var i = 0; i < apartments.Count; i++)
-            {
-                Assert.Equal(apartments[i].Id, returnValue[i].Id);
-                Assert.Equal(apartments[i].Name, returnValue[i].Name);
-            }  
-        }
-
-        [Fact]
-        public async Task GetAsync_ShouldReturnNotFoundResult_WhenNoApartmentsExist()
+        Assert.Equal(apartments.Count, returnValue.Count);
+        for (var i = 0; i < apartments.Count; i++)
         {
-            // Arrange
-            var apartmentServiceFake = A.Fake<IApartmentService>();
-            var controller = new ApartmentsController(apartmentServiceFake);
+            Assert.Equal(apartments[i].Id, returnValue[i].Id);
+            Assert.Equal(apartments[i].Name, returnValue[i].Name);
+        }  
+    }
 
-            A.CallTo(() => apartmentServiceFake.GetAsync(A<CancellationToken>._))
-                .Returns(Result<IEnumerable<ApartmentDto>>.Fail(["NotFound"]));
+    [Fact]
+    public async Task GetAsync_ShouldReturnNotFoundResult_WhenNoApartmentsExist()
+    {
+        // Arrange
+        var apartmentServiceFake = A.Fake<IApartmentService>();
+        var controller = new ApartmentsController(apartmentServiceFake);
 
-            // Act
-            var response = await controller.GetAsync(CancellationToken.None);
+        A.CallTo(() => apartmentServiceFake.GetAsync(A<CancellationToken>._))
+            .Returns(Result<IEnumerable<ApartmentDto>>.Fail(["NotFound"]));
 
-            // Assert
-            var result = Assert.IsType<ActionResult<IEnumerable<ApartmentDto>>>(response);
-            Assert.IsType<NotFoundResult>(result.Result);
-            Assert.Null(result.Value);
-        }
+        // Act
+        var response = await controller.GetAsync(CancellationToken.None);
 
-        [Fact]
-        public async Task GetAsync_ShouldReturnOkResult_WhenApartmentExists()
-        {
-            // Arrange
-            var apartmentServiceFake = A.Fake<IApartmentService>();
-            var controller = new ApartmentsController(apartmentServiceFake);
+        // Assert
+        var result = Assert.IsType<ActionResult<IEnumerable<ApartmentDto>>>(response);
+        Assert.IsType<NotFoundResult>(result.Result);
+        Assert.Null(result.Value);
+    }
 
-            var apartmentId = Guid.NewGuid();
-            var apartment = new ApartmentDto { Id = apartmentId, Name = "Apartment 1" };
+    [Fact]
+    public async Task GetAsync_ShouldReturnOkResult_WhenApartmentExists()
+    {
+        // Arrange
+        var apartmentServiceFake = A.Fake<IApartmentService>();
+        var controller = new ApartmentsController(apartmentServiceFake);
 
-            A.CallTo(() => apartmentServiceFake.GetAsync(apartmentId, A<CancellationToken>._))
-                .Returns(Result<ApartmentDto>.Ok(apartment));
+        var apartmentId = Guid.NewGuid();
+        var apartment = new ApartmentDto { Id = apartmentId, Name = "Apartment 1" };
 
-            // Act
-            var response = await controller.GetAsync(apartmentId, CancellationToken.None);
+        A.CallTo(() => apartmentServiceFake.GetAsync(apartmentId, A<CancellationToken>._))
+            .Returns(Result<ApartmentDto>.Ok(apartment));
 
-            // Assert
-            var result = Assert.IsType<ActionResult<ApartmentDto>>(response);
-            var okResult = Assert.IsType<OkObjectResult>(result.Result);
-            Assert.Equal(apartment, okResult.Value);
-        }
+        // Act
+        var response = await controller.GetAsync(apartmentId, CancellationToken.None);
 
-        [Fact]
-        public async Task GetAsync_ShouldReturnNotFoundResult_WhenApartmentDoesNotExist()
-        {
-            // Arrange
-            var apartmentServiceFake = A.Fake<IApartmentService>();
-            var controller = new ApartmentsController(apartmentServiceFake);
+        // Assert
+        var result = Assert.IsType<ActionResult<ApartmentDto>>(response);
+        var okResult = Assert.IsType<OkObjectResult>(result.Result);
+        Assert.Equal(apartment, okResult.Value);
+    }
 
-            var apartmentId = Guid.NewGuid();
+    [Fact]
+    public async Task GetAsync_ShouldReturnNotFoundResult_WhenApartmentDoesNotExist()
+    {
+        // Arrange
+        var apartmentServiceFake = A.Fake<IApartmentService>();
+        var controller = new ApartmentsController(apartmentServiceFake);
 
-            A.CallTo(() => apartmentServiceFake.GetAsync(apartmentId, A<CancellationToken>._))
-                .Returns(Result<ApartmentDto>.Fail(["NotFound"]));
+        var apartmentId = Guid.NewGuid();
 
-            // Act
-            var response = await controller.GetAsync(apartmentId, CancellationToken.None);
+        A.CallTo(() => apartmentServiceFake.GetAsync(apartmentId, A<CancellationToken>._))
+            .Returns(Result<ApartmentDto>.Fail(["NotFound"]));
 
-            // Assert
-            var result = Assert.IsType<ActionResult<ApartmentDto>>(response);
-            Assert.IsType<NotFoundResult>(result.Result);
-            Assert.Equal(default, response.Value);
-        }
+        // Act
+        var response = await controller.GetAsync(apartmentId, CancellationToken.None);
 
-        [Fact]
-        public async Task PostAsync_ShouldReturnCreatedAtActionResult_WhenApartmentIsCreated()
-        {
-            // Arrange
-            var apartmentServiceFake = A.Fake<IApartmentService>();
-            var controller = new ApartmentsController(apartmentServiceFake);
+        // Assert
+        var result = Assert.IsType<ActionResult<ApartmentDto>>(response);
+        Assert.IsType<NotFoundResult>(result.Result);
+        Assert.Equal(default, response.Value);
+    }
 
-            var apartmentId = Guid.NewGuid();
-            var request = new ApartmentRequest { Name = "Apartment 1" };
-            var dto = new CreateApartmentCommand { Name = request.Name, Address = new CreateApartmentAddressDto() };
+    [Fact]
+    public async Task PostAsync_ShouldReturnCreatedAtActionResult_WhenApartmentIsCreated()
+    {
+        // Arrange
+        var apartmentServiceFake = A.Fake<IApartmentService>();
+        var controller = new ApartmentsController(apartmentServiceFake);
 
-            A.CallTo(() => apartmentServiceFake.CreateAsync(dto, A<CancellationToken>._))
-                .Returns(Result<Guid>.Ok(apartmentId));
+        var apartmentId = Guid.NewGuid();
+        var request = new ApartmentRequest { Name = "Apartment 1" };
+        var dto = new CreateApartmentCommand { Name = request.Name, Address = new CreateApartmentAddressDto() };
 
-            // Act
-            var response = await controller.PostAsync(request, CancellationToken.None);
+        A.CallTo(() => apartmentServiceFake.CreateAsync(dto, A<CancellationToken>._))
+            .Returns(Result<Guid>.Ok(apartmentId));
 
-            // Assert
-            var createdAtActionResult = Assert.IsType<CreatedAtRouteResult>(response);
-            Assert.Equal(nameof(controller.GetAsync), createdAtActionResult.RouteName);
-            Assert.NotNull(createdAtActionResult);
-            Assert.Equal(apartmentId, createdAtActionResult.RouteValues?["id"]);
-            Assert.Null(createdAtActionResult.Value);
-        }
+        // Act
+        var response = await controller.PostAsync(request, CancellationToken.None);
 
-        [Fact]
-        public async Task PostAsync_ShouldReturnBadRequestResult_WhenApartmentCreationFails()
-        {
-            // Arrange
-            var apartmentServiceFake = A.Fake<IApartmentService>();
-            var controller = new ApartmentsController(apartmentServiceFake);
+        // Assert
+        var createdAtActionResult = Assert.IsType<CreatedAtRouteResult>(response);
+        Assert.Equal(nameof(controller.GetAsync), createdAtActionResult.RouteName);
+        Assert.NotNull(createdAtActionResult);
+        Assert.Equal(apartmentId, createdAtActionResult.RouteValues?["id"]);
+        Assert.Null(createdAtActionResult.Value);
+    }
 
-            var request = new ApartmentRequest { Name = "Apartment 1" };
-            var dto = new CreateApartmentCommand { Name = request.Name, Address = new CreateApartmentAddressDto()  };
+    [Fact]
+    public async Task PostAsync_ShouldReturnBadRequestResult_WhenApartmentCreationFails()
+    {
+        // Arrange
+        var apartmentServiceFake = A.Fake<IApartmentService>();
+        var controller = new ApartmentsController(apartmentServiceFake);
 
-            var errors = new[] { "Error description" };
-            var result = Result<Guid>.Fail(errors);
+        var request = new ApartmentRequest { Name = "Apartment 1" };
+        var dto = new CreateApartmentCommand { Name = request.Name, Address = new CreateApartmentAddressDto()  };
 
-            A.CallTo(() => apartmentServiceFake.CreateAsync(dto, A<CancellationToken>._))
-                .Returns(result);
+        var errors = new[] { "Error description" };
+        var result = Result<Guid>.Fail(errors);
 
-            // Act
-            var response = await controller.PostAsync(request, CancellationToken.None);
+        A.CallTo(() => apartmentServiceFake.CreateAsync(dto, A<CancellationToken>._))
+            .Returns(result);
 
-            // Assert
-            var badRequestResult = Assert.IsType<BadRequestObjectResult>(response);
-            Assert.Equal(result.Errors, badRequestResult.Value);
-        }
+        // Act
+        var response = await controller.PostAsync(request, CancellationToken.None);
 
-        [Fact]
-        public async Task PutAsync_ShouldReturnNoContentResult_WhenApartmentIsUpdated()
-        {
-            // Arrange
-            var apartmentServiceFake = A.Fake<IApartmentService>();
-            var controller = new ApartmentsController(apartmentServiceFake);
+        // Assert
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(response);
+        Assert.Equal(result.Errors, badRequestResult.Value);
+    }
 
-            var apartmentId = Guid.NewGuid();
-            var request = new UpdateApartmentRequest { Name = "Updated Apartment" };
-            var dto = new UpdateApartmentCommand { Id = apartmentId, Name = request.Name };
+    [Fact]
+    public async Task PutAsync_ShouldReturnNoContentResult_WhenApartmentIsUpdated()
+    {
+        // Arrange
+        var apartmentServiceFake = A.Fake<IApartmentService>();
+        var controller = new ApartmentsController(apartmentServiceFake);
 
-            A.CallTo(() => apartmentServiceFake.UpdateApartment(dto, A<CancellationToken>._))
-                .Returns(Result.Ok());
+        var apartmentId = Guid.NewGuid();
+        var request = new UpdateApartmentRequest { Name = "Updated Apartment" };
+        var dto = new UpdateApartmentCommand { Id = apartmentId, Name = request.Name };
 
-            // Act
-            var response = await controller.PutAsync(apartmentId, request, CancellationToken.None);
+        A.CallTo(() => apartmentServiceFake.UpdateApartment(dto, A<CancellationToken>._))
+            .Returns(Result.Ok());
 
-            // Assert
-            Assert.IsType<NoContentResult>(response);
-        }
+        // Act
+        var response = await controller.PutAsync(apartmentId, request, CancellationToken.None);
 
-        [Fact]
-        public async Task PutAsync_ShouldReturnNotFoundResult_WhenApartmentToUpdateDoesNotExist()
-        {
-            // Arrange
-            var apartmentServiceFake = A.Fake<IApartmentService>();
-            var controller = new ApartmentsController(apartmentServiceFake);
+        // Assert
+        Assert.IsType<NoContentResult>(response);
+    }
 
-            var apartmentId = Guid.NewGuid();
-            var request = new UpdateApartmentRequest { Name = "Updated Apartment" };
-            var dto = new UpdateApartmentCommand { Id = apartmentId, Name = request.Name };
+    [Fact]
+    public async Task PutAsync_ShouldReturnNotFoundResult_WhenApartmentToUpdateDoesNotExist()
+    {
+        // Arrange
+        var apartmentServiceFake = A.Fake<IApartmentService>();
+        var controller = new ApartmentsController(apartmentServiceFake);
 
-            A.CallTo(() => apartmentServiceFake.UpdateApartment(dto, A<CancellationToken>._))
-                .Returns(Result.Fail(["NotFound"]));
+        var apartmentId = Guid.NewGuid();
+        var request = new UpdateApartmentRequest { Name = "Updated Apartment" };
+        var dto = new UpdateApartmentCommand { Id = apartmentId, Name = request.Name };
 
-            // Act
-            var response = await controller.PutAsync(apartmentId, request, CancellationToken.None);
+        A.CallTo(() => apartmentServiceFake.UpdateApartment(dto, A<CancellationToken>._))
+            .Returns(Result.Fail(["NotFound"]));
 
-            // Assert
-            Assert.IsType<NotFoundResult>(response);
-        }
+        // Act
+        var response = await controller.PutAsync(apartmentId, request, CancellationToken.None);
 
-        [Fact]
-        public async Task DeleteAsync_ShouldReturnNoContentResult_WhenApartmentIsDeleted()
-        {
-            // Arrange
-            var apartmentServiceFake = A.Fake<IApartmentService>();
-            var controller = new ApartmentsController(apartmentServiceFake);
+        // Assert
+        Assert.IsType<NotFoundResult>(response);
+    }
 
-            var apartmentId = Guid.NewGuid();
+    [Fact]
+    public async Task DeleteAsync_ShouldReturnNoContentResult_WhenApartmentIsDeleted()
+    {
+        // Arrange
+        var apartmentServiceFake = A.Fake<IApartmentService>();
+        var controller = new ApartmentsController(apartmentServiceFake);
 
-            // Act
-            var response = await controller.DeleteAsync(apartmentId, CancellationToken.None);
+        var apartmentId = Guid.NewGuid();
 
-            // Assert
-            Assert.IsType<NoContentResult>(response);
-            A.CallTo(() => apartmentServiceFake.DeleteAsync(apartmentId, A<CancellationToken>._))
-                .MustHaveHappenedOnceExactly();
-        }
+        // Act
+        var response = await controller.DeleteAsync(apartmentId, CancellationToken.None);
+
+        // Assert
+        Assert.IsType<NoContentResult>(response);
+        A.CallTo(() => apartmentServiceFake.DeleteAsync(apartmentId, A<CancellationToken>._))
+            .MustHaveHappenedOnceExactly();
     }
 }

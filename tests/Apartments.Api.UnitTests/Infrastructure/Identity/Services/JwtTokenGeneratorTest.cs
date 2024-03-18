@@ -10,8 +10,8 @@ public class JwtTokenGeneratorTests
     public void GenerateToken_ShouldReturnValidJwtToken()
     {
         // Arrange
-        var username = "testuser";
-        var key = "testkey-that-should-be-longer-than-16-characters";
+        const string username = "testuser";
+        const string key = "testkey-that-should-be-longer-than-16-characters";
         var utcNow = new DateTime(2024, 02, 24, 12, 49, 52, DateTimeKind.Utc);
         var expirationTime = TimeSpan.FromMinutes(30);
         var timeProviderFake = A.Fake<TimeProvider>();
@@ -23,9 +23,9 @@ public class JwtTokenGeneratorTests
             
         var tokenGenerator = new JwtTokenGenerator(timeProviderFake, optionsFake);
             
-        var expectedJwtToken =
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6InRlc3R1c2VyIiwibmJmIjoxNzA4Nzc1Mzky"
-            + "LCJleHAiOjE3MDg3NzcxOTIsImlhdCI6MTcwODc3NTM5Mn0.CZn9hMs93PiYe5hlKrIh8-Nz9uD6cB_V1I_X_7P09qQ";
+        const string expectedJwtToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6InRlc3R1"
+            + "c2VyIiwibmJmIjoxNzA4Nzc1MzkyLCJleHAiOjE3MDg3NzcxOTIsImlhdCI6MTcwODc3NTM5Mn0.CZn9hMs93PiYe5h"
+            + "lKrIh8-Nz9uD6cB_V1I_X_7P09qQ";
 
         // Act
         var jwtToken = tokenGenerator.GenerateToken(username);
