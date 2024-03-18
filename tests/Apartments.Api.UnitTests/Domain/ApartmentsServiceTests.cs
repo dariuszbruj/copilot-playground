@@ -25,7 +25,7 @@ public class ApartmentServiceTests
             { 
                 Id = Guid.Parse("d70070df-4bfb-4961-8092-4cd5085068cc"), 
                 Name = "Apartment 1", 
-                Address = new Address()
+                Address = new Address
                 {
                     BuildingNo = "1", FlatNumber = "1", Street = "Street 1", City = "City 1", State = "State 1", ZipCode = "ZipCode 1"
                 }},
@@ -33,7 +33,7 @@ public class ApartmentServiceTests
             {
                 Id = Guid.Parse("d70070df-4bfb-4961-8092-4cd5085068cd"),
                 Name = "Apartment 2",
-                Address = new Address()
+                Address = new Address
                 {
                     BuildingNo = "2", FlatNumber = "2", Street = "Street 2", City = "City 2", State = "State 2", ZipCode = "ZipCode 2"
                 }
@@ -100,7 +100,7 @@ public class ApartmentServiceTests
     public async Task CanUpdateApartment()
     {
         // Arrange
-        var apartment = new UpdateApartmentCommand()
+        var apartment = new UpdateApartmentCommand
         {
             Id = Guid.Parse("d70070df-4bfb-4961-8092-4cd5085068cc"),
             Name = "Updated Name"
