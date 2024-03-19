@@ -137,7 +137,8 @@ public class UserControllerTests
 
         // Assert
         Assert.NotNull(response);
-        var okObjectResult = Assert.IsType<OkObjectResult>(response.Result);
+        var result = Assert.IsType<ActionResult<LoginResponse>>(response);
+        var okObjectResult = Assert.IsType<OkObjectResult>(result.Result);
         var loginResponse = Assert.IsType<LoginResponse>(okObjectResult.Value);
         Assert.Equal(expectedToken, loginResponse.Token);
     }

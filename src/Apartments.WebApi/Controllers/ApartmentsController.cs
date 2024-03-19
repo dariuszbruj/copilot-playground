@@ -1,6 +1,7 @@
 using Apartments.Application.Modules.Apartments;
 using Apartments.Application.Modules.Apartments.Dtos;
 using Apartments.WebApi.Requests;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Apartments.WebApi.Controllers;
@@ -9,6 +10,7 @@ namespace Apartments.WebApi.Controllers;
 /// Controller for managing apartments.
 /// </summary>
 [ApiController]
+[Authorize]
 [Route("[controller]")]
 public class ApartmentsController(IApartmentService apartmentService)
     : ControllerBase
