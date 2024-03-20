@@ -3,6 +3,7 @@ using Apartments.Infrastructure.Identity;
 using Apartments.WebApi.Extensions;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
+using Apartments.WebApi.Swagger;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +16,18 @@ builder.Services.AddSwaggerGen(c =>
     var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
     c.IncludeXmlComments(xmlPath);
+
+    // Add security definition and requirement
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer"
+    });
+
+    c.OperationFilter<BasicAuthOperationsFilter>();
 });
 
 builder.Services.AddInfrastructure(builder.Configuration);

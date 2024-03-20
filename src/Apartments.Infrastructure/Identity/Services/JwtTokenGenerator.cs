@@ -16,13 +16,16 @@ public class JwtTokenGenerator(TimeProvider timeProvider, IOptions<JwtTokenGener
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.ASCII.GetBytes(_options.Key);
+        var now = timeProvider.GetUtcNow();
         var tokenDescriptor = new SecurityTokenDescriptor
         {
-            Subject = new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, username) }),
-            IssuedAt = timeProvider.GetUtcNow().DateTime,
-            Expires = timeProvider.GetUtcNow().Add(_options.ExpirationTime).DateTime,
+            Issuer = _options.Issuer,
+            Audience = _options.Audience,
+            Expires = now.Add(_options.ExpirationTime).UtcDateTime,
+            NotBefore = now.UtcDateTime,
+            IssuedAt = now.UtcDateTime,
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
-            NotBefore = timeProvider.GetUtcNow().DateTime
+            Subject = new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, username) }),
         };
         var token = tokenHandler.CreateToken(tokenDescriptor);
         
