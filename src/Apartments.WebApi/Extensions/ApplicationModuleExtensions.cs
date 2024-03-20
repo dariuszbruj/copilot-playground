@@ -3,7 +3,7 @@ using Apartments.Infrastructure.Apartments.Extensions;
 
 namespace Apartments.WebApi.Extensions;
 
-public static class ApplicationModuleExtensions
+internal static class ApplicationModuleExtensions
 {
     public static IServiceCollection AddApartmentsModule(this IServiceCollection services)
     {

@@ -1,5 +1,5 @@
 ﻿using Apartments.Application.Modules.Utilities;
-using Apartments.Domain.Models;
+using Apartments.Application.Modules.Utilities.Dtos;
 using Apartments.WebApi.Controllers;
 using Apartments.WebApi.Requests;
 using FakeItEasy;
@@ -14,23 +14,23 @@ public class UtilityControllerTests
         // Arrange
         var fakeService = A.Fake<IUtilityService>();
         var controller = new UtilityController(fakeService);
+        var apartmentGuid = new Guid("d3f3e3e3-3e3e-3e3e-3e3e-3e3e3e3e3e3e");
         var utilityMeasurementRequest = new UtilityMeasurementRequest
         {
-            ApartmentId = Guid.NewGuid(),
             MeasurementDate = DateTime.Now,
             UtilityUsage = 100.5m,
             UtilityType = UtilityTypeRequest.Water
         };
 
         // Act
-        await controller.InsertUtilityValues(utilityMeasurementRequest);
+        await controller.InsertUtilityValues(apartmentGuid, utilityMeasurementRequest);
 
         // Assert
-        A.CallTo(() => fakeService.InsertUtilityValues(A<UtilityMeasurement>.That.Matches(um =>
-            um.ApartmentId == utilityMeasurementRequest.ApartmentId &&
+        A.CallTo(() => fakeService.InsertUtilityValues(A<UtilityMeasurementDto>.That.Matches(um =>
+            um.ApartmentId == apartmentGuid &&
             um.MeasurementDate == utilityMeasurementRequest.MeasurementDate &&
             um.UtilityUsage == utilityMeasurementRequest.UtilityUsage &&
-            um.UtilityType == (UtilityType)Enum.Parse(typeof(UtilityType), utilityMeasurementRequest.UtilityType.ToString())
+            um.UtilityType == (UtilityTypeDto)Enum.Parse(typeof(UtilityTypeDto), utilityMeasurementRequest.UtilityType.ToString())
         ))).MustHaveHappenedOnceExactly();
     }
 }

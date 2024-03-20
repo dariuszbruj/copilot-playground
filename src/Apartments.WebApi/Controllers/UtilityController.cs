@@ -1,5 +1,5 @@
 ﻿using Apartments.Application.Modules.Utilities;
-using Apartments.Domain.Models;
+using Apartments.Application.Modules.Utilities.Dtos;
 using Apartments.WebApi.Requests;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -11,7 +11,7 @@ namespace Apartments.WebApi.Controllers
     /// Controller for managing utility measurements.
     /// </summary>
     [ApiController]
-    [Route("[controller]")]
+    [Route("apartments/{apartmentId:guid}/utilities")]
     [Authorize]
     public class UtilityController : ControllerBase
     {
@@ -29,20 +29,21 @@ namespace Apartments.WebApi.Controllers
         /// <summary>
         /// Inserts utility values.
         /// </summary>
+        /// <param name="apartmentId">Apartment id</param>
         /// <param name="request">The utility measurement request.</param>
         /// <returns>An IActionResult that represents the result of the operation.</returns>
         [HttpPost]
-        public async Task<IActionResult> InsertUtilityValues([FromBody] UtilityMeasurementRequest request)
+        public async Task<IActionResult> InsertUtilityValues(Guid apartmentId, [FromBody] UtilityMeasurementRequest request)
         {
-            var utilityMeasurement = new UtilityMeasurement
+            var utilityMeasurementDto = new UtilityMeasurementDto
             {
-                ApartmentId = request.ApartmentId,
+                ApartmentId = apartmentId,
                 MeasurementDate = request.MeasurementDate,
                 UtilityUsage = request.UtilityUsage,
-                UtilityType = (UtilityType)Enum.Parse(typeof(UtilityType), request.UtilityType.ToString())
+                UtilityType = (UtilityTypeDto)Enum.Parse(typeof(UtilityTypeDto), request.UtilityType.ToString())
             };
 
-            await _utilityService.InsertUtilityValues(utilityMeasurement);
+            await _utilityService.InsertUtilityValues(utilityMeasurementDto);
             
             return Ok();
         }
