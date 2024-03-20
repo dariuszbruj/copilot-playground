@@ -1,9 +1,9 @@
+using System.Reflection;
 using Apartments.Infrastructure.EntityFramework;
 using Apartments.Infrastructure.Identity;
 using Apartments.WebApi.Extensions;
-using Microsoft.OpenApi.Models;
-using System.Reflection;
 using Apartments.WebApi.Swagger;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +34,7 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddIdentityServices(builder.Configuration);
 
 builder.Services.AddApartmentsModule();
+builder.Services.AddUtilityModule();
 
 builder.Services.AddRouting(options =>
 {

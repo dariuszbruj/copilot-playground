@@ -17,7 +17,7 @@ namespace Apartments.Infrastructure.EntityFramework.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.2")
+                .HasAnnotation("ProductVersion", "8.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -91,6 +91,25 @@ namespace Apartments.Infrastructure.EntityFramework.Migrations
                     b.HasIndex("AddressId");
 
                     b.ToTable("Apartments", (string)null);
+                });
+
+            modelBuilder.Entity("Apartments.Infrastructure.Utilities.Models.UtilityMeasurementDbModel", b =>
+                {
+                    b.Property<Guid>("ApartmentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("MeasurementDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UtilityType")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("UtilityUsage")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("ApartmentId", "MeasurementDate", "UtilityType");
+
+                    b.ToTable("UtilityMeasurements", (string)null);
                 });
 
             modelBuilder.Entity("Apartments.Infrastructure.Apartments.Models.ApartmentDbModel", b =>
