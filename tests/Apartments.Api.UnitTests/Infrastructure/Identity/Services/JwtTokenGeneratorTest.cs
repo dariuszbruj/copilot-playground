@@ -10,8 +10,8 @@ public class JwtTokenGeneratorTests
     public void GenerateToken_ShouldReturnValidJwtToken()
     {
         // Arrange
-        const string username = "testuser";
-        const string key = "testkey-that-should-be-longer-than-16-characters";
+        var username = "testuser";
+        var key = "testkey-that-should-be-longer-than-16-characters";
         var utcNow = new DateTime(2024, 02, 24, 12, 49, 52, DateTimeKind.Utc);
         var expirationTime = TimeSpan.FromMinutes(30);
         var timeProviderFake = A.Fake<TimeProvider>();
